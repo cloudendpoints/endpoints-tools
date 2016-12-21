@@ -57,7 +57,7 @@ var (
 	containerType string
 )
 
-const EndpointsContainer = "b.gcr.io/endpoints/endpoints-runtime:1.0"
+const EndpointsContainer = "gcr.io/endpoints-release/endpoints-runtime:1"
 
 // Default number of replicas for ESP service
 const defaultReplicas = 1
