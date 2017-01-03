@@ -32,13 +32,20 @@ var (
 	cfg       deploy.Service
 )
 
+func check(msg string, err error) {
+	if err != nil {
+		log.Println(msg, err)
+		os.Exit(-1)
+	}
+}
+
 // RootCmd for CLI
 var RootCmd = &cobra.Command{
 	Use:   "espcli",
 	Short: "ESP deployment manager for Kubernetes",
 	Long:  "A tool to deploy and monitor Extensible Service Proxy on a Kubernetes cluster",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("Please run with -h flag to see the list of available commands.")
+		log.Println("Please run 'espcli help' to see the list of available commands.")
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(

@@ -62,16 +62,13 @@ const EndpointsContainer = "gcr.io/endpoints-release/endpoints-runtime:1"
 // Default number of replicas for ESP service
 const defaultReplicas = 1
 
-func check(msg string, err error) {
-	if err != nil {
-		log.Println(msg, err)
-		os.Exit(-1)
-	}
-}
-
 var deployCmd = &cobra.Command{
 	Use:   "deploy [source Kubernetes service] [target ESP service]",
 	Short: "Deploy ESP for an existing Kubernetes service",
+	Long: `
+	Deploy command injects an Extensible Service Proxy container and creates a
+new target Kubernetes service that routes traffic through the proxy to the 
+source Kubernetes service.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Must take one parameter
 		if len(args) != 2 {
