@@ -136,8 +136,8 @@ func init() {
 		"grpc", "g", false,
 		"Use GRPC to communicate with the backend")
 	deployCmd.PersistentFlags().StringVarP(&containerType,
-		"deploy", "d", "tight",
-		"Specify deployment (tight or loose)")
+		"deployment", "d", "tight",
+		"Specify deployment type (tight for a sidecar injection or loose for a middle proxy deployment)")
 	deployCmd.PersistentFlags().StringVarP(&serviceType,
 		"serviceType", "e", string(api.ServiceTypeClusterIP),
 		fmt.Sprintf("Expose ESP service as the provided service type (one of %s, %s, %s)",
@@ -145,8 +145,8 @@ func init() {
 
 	deployCmd.PersistentFlags().StringArrayVarP(&configs,
 		"config", "c", nil, "Service config file, one or combination of "+
-			"OpenAPI, Google Service Config, or proto descriptor. "+
-			"(supported extensions: .yaml, .yml, .json, .pb, .descriptor).")
+			"OpenAPI, Google Service Config, or proto descriptor "+
+			"(supported extensions: .yaml, .yml, .json, .pb, .descriptor)")
 }
 
 // CreateServiceConfig creates/enables/submits configuration for the service
@@ -156,7 +156,7 @@ func CreateServiceConfig(name, namespace string) error {
 		return err
 	}
 
-	defaultName := name + "." + namespace + "." + cfg.ProducerProject + ".appspot.com"
+	defaultName := name + "." + namespace + ".endpoints." + cfg.ProducerProject + ".cloud.goog"
 
 	if cfg.Version != "" {
 		// retrieve config

@@ -36,7 +36,7 @@ This command fetches all required dependencies and produces a single binary
 `bazel-bin/espcli`. To read more about its usage and flags,
 please consult:
 
-    bazel-bin/espcli --help
+    bazel run :espcli -- help
 
 
 ## Contributing ##

@@ -17,8 +17,9 @@ package deploy
 const defaultServiceConfig = `
 swagger: '2.0'
 info:
-  title: %s
+  title: "Basic HTTP service configuration"
   version: 1.0.0
+host: "%s"
 paths:
   "/**":
     get:

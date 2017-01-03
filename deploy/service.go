@@ -332,7 +332,7 @@ func (s *Service) Rollout() error {
 }
 
 // Deploy service configuration files and ensure it is ready to be consumed
-// Use defaultName to provide default service name and default service configuration
+// Use defaultName to provide default service name for default service configuration
 func (s *Service) Deploy(files []string, defaultName string) (*mgmt.Service, error) {
 	var configs []*mgmt.ConfigFile
 	var err error
