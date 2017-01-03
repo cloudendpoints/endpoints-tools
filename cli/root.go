@@ -38,7 +38,7 @@ var RootCmd = &cobra.Command{
 	Short: "ESP deployment manager for Kubernetes",
 	Long:  "A tool to deploy and monitor Extensible Service Proxy on a Kubernetes cluster",
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("Please specify -h option to see the list of options.")
+		log.Println("Please run with -h flag to see the list of available commands.")
 	},
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(

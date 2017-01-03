@@ -25,7 +25,7 @@ import (
 )
 
 func main() {
-	log.SetPrefix("[espcli] ")
+	log.SetPrefix("[espcli v" + Version + "] ")
 	log.SetFlags(0)
 	if err := cli.RootCmd.Execute(); err != nil {
 		fmt.Println(err)
