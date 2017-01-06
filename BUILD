@@ -61,16 +61,3 @@ go_binary(
         "@github_com_spf13_cobra//:cobra",
     ],
 )
-
-go_binary(
-    name = "service_config",
-    srcs = [
-        "service_config.go",
-    ],
-    go_prefix = "//:go_prefix",
-    deps = [
-        ":vendor/deploy",
-        "@github_com_spf13_cobra//:cobra",
-        "@google_api_go_client//:servicemanagement/v1",
-    ],
-)
