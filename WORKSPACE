@@ -1,3 +1,17 @@
+# Copyright 2017 Google Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 git_repository(
     name = "io_bazel_rules_go",
     commit = "3b13b2dba81e09ec213ccbd4da56ad332cb5d3dc",
@@ -772,3 +786,16 @@ new_git_repository(
     commit = "290ed46a0684cc372f475ca8f36b63aa3066978e",
     remote = "https://github.com/GoogleCloudPlatform/google-cloud-go.git",
 )
+
+#
+# Python rules
+#
+git_repository(
+    name = "io_bazel_rules_pex",
+    commit = "d4af3ca0a015e8b2d2a81a4df1df51bb0fa0bba0",
+    remote = "https://github.com/benley/bazel_rules_pex.git",
+)
+
+load("@io_bazel_rules_pex//pex:pex_rules.bzl", "pex_repositories")
+
+pex_repositories()
