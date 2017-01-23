@@ -22,6 +22,7 @@ pkg_tar(
     files = [
         ":debug_nginx.sh",
         ":fetch_service_config.sh",
+        ":nginx-debug",
         ":start_esp",
     ],
     mode = "0755",
