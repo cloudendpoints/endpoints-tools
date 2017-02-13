@@ -4,6 +4,12 @@ This repository hosts helper tools for the [Extensible Service Proxy](https://cl
 
 These tools are not official Google products.
 
+# Code organization #
+
+This repository hosts two tools used by the Extensible Service Proxy:
+* [`start_esp`](/start_esp) is a Python start-up script for the proxy. The script includes a generic nginx configuration template and fetching logic to retrive service configuration from Google Service Management service.
+* [helper script for Kubernetes deployment](#esp-cli) is a Golang command line utility that automates ESP injection as a sidecar container in Kubernetes deployments and configuring the proxy. This script is used by a single-line ESP tutorial, and shows how to use the start-up script.
+
 ## ESP CLI ##
 
 ESP command line tool (`espcli`) lets you try out the Extensible Service Proxy on a Kubernetes cluster using a simple two-step deployment process. ESP CLI depends on `kubectl` and its active kube configuration. You also need a [Google Cloud Platform](http://cloud.google.com) project.
