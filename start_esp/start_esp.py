@@ -109,7 +109,8 @@ def write_template(ingress, nginx_conf, args):
             metadata=args.metadata,
             resolver=args.dns,
             access_log=args.access_log,
-            healthz=args.healthz)
+            healthz=args.healthz,
+            tls_mutual_auth=args.tls_mutual_auth)
 
     # Save nginx conf
     try:
@@ -319,11 +320,14 @@ config file.'''.format(
     parser.add_argument('-a', '--backend', default=DEFAULT_BACKEND, help='''
     Change the application server address to which ESP proxies the requests.
     Default value: {backend}. For HTTPS backends, please use "https://" prefix,
-    e.g. https://127.0.0.1:8081 and provide the certificate and key files
-    /etc/nginx/ssl/backend.crt and /etc/nginx/ssl/backend.key. For HTTP/1.x
-    backends, prefix "http://" is optional. For GRPC backends, please use
-    "grpc://" prefix, e.g. grpc://127.0.0.1:8081.
-    '''.format(backend=DEFAULT_BACKEND))
+    e.g. https://127.0.0.1:8081. For HTTP/1.x backends, prefix "http://" is
+    optional. For GRPC backends, please use "grpc://" prefix,
+    e.g. grpc://127.0.0.1:8081.'''.format(backend=DEFAULT_BACKEND))
+
+    parser.add_argument('-t', '--tls_mutual_auth', action='store_true', help='''
+    Enable TLS mutual authentication for HTTPS backends.
+    Default value: Not enabled. Please provide the certificate and key files
+    /etc/nginx/ssl/backend.crt and /etc/nginx/ssl/backend.key.''')
 
     parser.add_argument('-c', '--service_config_url', default=None, help='''
     Use the specified URL to fetch the service configuration instead of using
