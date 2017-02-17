@@ -58,8 +58,10 @@ http {
     listen ${port.port} http2 backlog=16384;
   % elif port.proto == 'ssl':
     listen ${port.port} ssl http2 backlog=16384;
-    ssl_certificate /etc/nginx/ssl/nginx.crt;
-    ssl_certificate_key /etc/nginx/ssl/nginx.key;
+    % if tls_mutual_auth:
+      proxy_ssl_certificate /etc/nginx/ssl/backend.crt;
+      proxy_ssl_certificate_key /etc/nginx/ssl/backend.key;
+    % endif
   % endif
 % endfor
 
@@ -95,8 +97,10 @@ http {
       proxy_pass http://app_server${i};
   % elif location.proto == 'https':
       proxy_pass https://app_server${i};
-      proxy_ssl_certificate /etc/nginx/ssl/backend.crt;
-      proxy_ssl_certificate_key /etc/nginx/ssl/backend.key;
+      % if tls_mutual_auth:
+          proxy_ssl_certificate /etc/nginx/ssl/backend.crt;
+          proxy_ssl_certificate_key /etc/nginx/ssl/backend.key;
+      % endif
   % endif
       proxy_redirect off;
       proxy_set_header Host $host;
