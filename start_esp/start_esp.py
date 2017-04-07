@@ -230,7 +230,7 @@ def make_ingress(service_config, args):
     elif args.backend.startswith(HTTPS_PREFIX):
         proto = "https"
         backend = args.backend[len(HTTPS_PREFIX):]
-        if not re.search(r':[0-9]+$', backend)
+        if not re.search(r':[0-9]+$', backend):
             backend = backend + ':443'
         backends = [backend]
     else:
