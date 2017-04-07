@@ -30,6 +30,7 @@ import fetch_service_config as fetch
 import json
 import logging
 import os
+import re
 import sys
 import textwrap
 
@@ -229,7 +230,7 @@ def make_ingress(service_config, args):
     elif args.backend.startswith(HTTPS_PREFIX):
         proto = "https"
         backend = args.backend[len(HTTPS_PREFIX):]
-        if backend.find(':') < 0:
+        if re.search(r':[0-9]+$', backend)
             backend = backend + ':443'
         backends = [backend]
     else:
