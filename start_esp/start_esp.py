@@ -150,34 +150,56 @@ def start_nginx(nginx, nginx_conf):
 
 def fetch_service_config(args, service_config):
     try:
-        # Fetch service config
-        if args.service_config_url is None:
+        if args.service_config_url is not None:
+            service_mgmt_url = args.service_config_url
+        else:
+            # fetch service name, if not specified
             if args.service is None:
-                logging.info("Fetching the service name from the metadata service")
+                logging.info(
+                    "Fetching the service name from the metadata service")
                 args.service = fetch.fetch_service_name(args.metadata)
 
+            # if service name is not specified, display error message and exit
+            if args.service is None:
+                logging.error("Unable to get service name");
+                sys.exit(3)
+
+            # fetch service config ID, if not specified
             if args.version is None:
-                logging.info("Fetching the service config ID from the metadata service")
+                logging.info("Fetching the service config ID "\
+                             "from the metadata service")
                 args.version = fetch.fetch_service_config_id(args.metadata)
 
+            # Get the access token
+            if args.service_account_key is None:
+                logging.info("Fetching an access token from the metadata service")
+                token = fetch.fetch_access_token(args.metadata)
+            else:
+                token = fetch.make_access_token(args.service_account_key)
+
+            # Fetch api version from latest successful rollouts
+            if args.version is None:
+                logging.info(
+                    "Fetching the service config ID from the rollouts service")
+                rollout = fetch.fetch_latest_rollout(args.service, token)
+                # For phase 1, only one config ID in each rollout
+                for version, percentage in rollout.iteritems():
+                    # found latest config ID
+                    args.version = version
+                    break
+
+            # Check service config ID is specified
+            if args.version is None:
+                logging.error("Unable to get service config ID");
+                sys.exit(3)
+
             service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.service,
-                                                                args.version)
-        else:
-            service_mgmt_url = args.service_config_url
-
-        # Get the access token
-        if args.service_account_key is None:
-            logging.info("Fetching an access token from the metadata service")
-            token = fetch.fetch_access_token(args.metadata)
-        else:
-            token = fetch.make_access_token(args.service_account_key)
-
-        logging.info("Fetching the service configuration from the service management service")
-        config = fetch.fetch_service_json(service_mgmt_url, token)
+                                                            args.version)
 
         # Validate service config if we have service name and version
-        if args.service is not None and args.version is not None:
-            fetch.validate_service_config(config, args.service, args.version)
+        logging.info("Fetching the service configuration "\
+                     "from the service management service")
+        config = fetch.fetch_service_json(service_mgmt_url, token)
 
         # Save service json for ESP
         try:

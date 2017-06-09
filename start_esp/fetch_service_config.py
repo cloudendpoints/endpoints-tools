@@ -21,6 +21,11 @@ import logging
 import urllib3
 from oauth2client.service_account import ServiceAccountCredentials
 
+# Service management service
+SERVICE_MGMT_ROLLOUTS_URL_TEMPLATE = (
+    "https://servicemanagement.googleapis.com"
+    "/v1/services/{}/rollouts?pageToken={}")
+
 _GOOGLE_API_SCOPE = (
     "https://www.googleapis.com/auth/service.management.readonly")
 
@@ -114,6 +119,60 @@ def fetch_access_token(metadata):
     token = json.loads(response.data)["access_token"]
     return token
 
+def fetch_latest_rollout(service_name, access_token):
+    """Fetch rollouts"""
+    if access_token is None:
+        headers = {}
+    else:
+        headers = {"Authorization": "Bearer {}".format(access_token)}
+
+    client = urllib3.PoolManager(ca_certs=certifi.where())
+
+    page_token = ""
+    while True:
+        service_mgmt_url = SERVICE_MGMT_ROLLOUTS_URL_TEMPLATE.format(
+              service_name, page_token)
+
+        try:
+            response = client.request("GET", service_mgmt_url, headers=headers)
+        except:
+            raise FetchError(1, "Failed to fetch service config")
+
+        status_code = response.status
+        if status_code != 200:
+            message_template = ("Fetching service config failed "\
+                                "(status code {}, reason {}, url {})")
+            raise FetchError(1, message_template.format(status_code,
+                                                        response.reason,
+                                                        service_mgmt_url))
+
+        rollouts = json.loads(response.data)
+        if rollouts["rollouts"] is None:
+            message_template = ("Invalid rollouts response (url {}, data {})")
+            raise FetchError(1, message_template.format(service_mgmt_url,
+                                                        response.data))
+
+        # Find first successful rollous
+        for rollout in rollouts["rollouts"]:
+            if rollout is not None and \
+              rollout["status"] is not None and \
+              rollout["status"] == "SUCCESS" and \
+              rollout["trafficPercentStrategy"] is not None and \
+              rollout["trafficPercentStrategy"]["percentages"] is not None:
+                return rollout["trafficPercentStrategy"]["percentages"]
+
+        # Stop fetching next page when nextPageToken is not defined
+        if rollouts["nextPageToken"] is None:
+            break
+        
+        # fetching next page
+        page_token = rollouts["nextPageToken"]
+
+    # No valid rollouts
+    message_template = ("Fetching rollouts failed "\
+                        "(status code {}, reason {}, url {})")
+    raise FetchError(1, message_template.format(status_code, response.reason,
+                                           service_mgmt_url))
 
 def fetch_service_json(service_mgmt_url, access_token):
     """Fetch service config."""
