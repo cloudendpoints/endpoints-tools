@@ -140,7 +140,7 @@ def fetch_latest_rollout(service_name, access_token):
 
         status_code = response.status
         if status_code != 200:
-            message_template = ("Fetching service config failed "\
+            message_template = ("Fetching rollouts failed "\
                                 "(status code {}, reason {}, url {})")
             raise FetchError(1, message_template.format(status_code,
                                                         response.reason,
@@ -154,8 +154,7 @@ def fetch_latest_rollout(service_name, access_token):
 
         # Find first successful rollous
         for rollout in rollouts["rollouts"]:
-            if rollout is not None and \
-              rollout["status"] is not None and \
+            if rollout["status"] is not None and \
               rollout["status"] == "SUCCESS" and \
               rollout["trafficPercentStrategy"] is not None and \
               rollout["trafficPercentStrategy"]["percentages"] is not None:
