@@ -137,7 +137,7 @@ def fetch_latest_rollout(service_name, access_token):
 
     status_code = response.status
     if status_code != 200:
-        message_template = ("Fetching service config failed "\
+        message_template = ("Fetching rollouts failed "\
                             "(status code {}, reason {}, url {})")
         raise FetchError(1, message_template.format(status_code,
                                                     response.reason,
