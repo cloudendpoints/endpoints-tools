@@ -182,11 +182,9 @@ def fetch_service_config(args, service_config):
                 logging.info(
                     "Fetching the service config ID from the rollouts service")
                 rollout = fetch.fetch_latest_rollout(args.service, token)
-                # For phase 1, only one config ID in each rollout
-                for version, percentage in rollout.iteritems():
-                    # found latest config ID
-                    args.version = version
-                    break
+                version = rollout.iterkeys().next();
+                if version is not None:
+                  args.version = version
 
             # Check service config ID is specified
             if args.version is None:
@@ -194,7 +192,7 @@ def fetch_service_config(args, service_config):
                 sys.exit(3)
 
             service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.service,
-                                                            args.version)
+                                                                args.version)
 
         # Validate service config if we have service name and version
         logging.info("Fetching the service configuration "\
