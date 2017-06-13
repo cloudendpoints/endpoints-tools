@@ -21,6 +21,11 @@ import logging
 import urllib3
 from oauth2client.service_account import ServiceAccountCredentials
 
+# Service management service
+SERVICE_MGMT_ROLLOUTS_URL_TEMPLATE = (
+    "https://servicemanagement.googleapis.com"
+    "/v1/services/{}/rollouts?filter=status=SUCCESS")
+
 _GOOGLE_API_SCOPE = (
     "https://www.googleapis.com/auth/service.management.readonly")
 
@@ -114,6 +119,41 @@ def fetch_access_token(metadata):
     token = json.loads(response.data)["access_token"]
     return token
 
+def fetch_latest_rollout(service_name, access_token):
+    """Fetch rollouts"""
+    if access_token is None:
+        headers = {}
+    else:
+        headers = {"Authorization": "Bearer {}".format(access_token)}
+
+    client = urllib3.PoolManager(ca_certs=certifi.where())
+
+    service_mgmt_url = SERVICE_MGMT_ROLLOUTS_URL_TEMPLATE.format(service_name)
+
+    try:
+        response = client.request("GET", service_mgmt_url, headers=headers)
+    except:
+        raise FetchError(1, "Failed to fetch rollouts")
+
+    status_code = response.status
+    if status_code != 200:
+        message_template = ("Fetching rollouts failed "\
+                            "(status code {}, reason {}, url {})")
+        raise FetchError(1, message_template.format(status_code,
+                                                    response.reason,
+                                                    service_mgmt_url))
+    rollouts = json.loads(response.data)
+    # No valid rollouts
+    if rollouts is None or \
+      'rollouts' not in rollouts or \
+      len(rollouts["rollouts"]) == 0 or \
+      "trafficPercentStrategy" not in rollouts["rollouts"][0] or \
+      "percentages" not in rollouts["rollouts"][0]["trafficPercentStrategy"]:
+        message_template = ("Invalid rollouts response (url {}, data {})")
+        raise FetchError(1, message_template.format(service_mgmt_url,
+                                                    response.data))
+
+    return rollouts["rollouts"][0]["trafficPercentStrategy"]["percentages"]
 
 def fetch_service_json(service_mgmt_url, access_token):
     """Fetch service config."""
