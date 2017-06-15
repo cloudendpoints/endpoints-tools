@@ -33,6 +33,7 @@ import os
 import re
 import sys
 import textwrap
+import uuid
 
 from collections import Counter
 from mako.template import Template
@@ -42,6 +43,7 @@ NGINX = "/usr/sbin/nginx"
 
 # Location of NGINX template
 NGINX_CONF_TEMPLATE = "/etc/nginx/nginx-auto.conf.template"
+SERVER_CONF_TEMPLATE = "/etc/nginx/server-auto.conf.template"
 
 # Location of generated config files
 CONFIG_DIR = "/etc/nginx/endpoints"
@@ -80,7 +82,7 @@ GOOGLE_CREDS_KEY = "GOOGLE_APPLICATION_CREDENTIALS"
 Port = collections.namedtuple('Port',
         ['port', 'proto'])
 Location = collections.namedtuple('Location',
-        ['path', 'backends', 'service_config', 'proto'])
+        ['path', 'backends', 'proto'])
 Ingress = collections.namedtuple('Ingress',
         ['ports', 'host', 'locations'])
 
@@ -105,6 +107,7 @@ def write_template(ingress, nginx_conf, args):
     conf = template.render(
             ingress=ingress,
             pid_file=PID_FILE,
+            server_config=args.server_config,
             status=args.status_port,
             service_account=args.service_account_key,
             metadata=args.metadata,
@@ -120,6 +123,25 @@ def write_template(ingress, nginx_conf, args):
         f.close()
     except IOError as err:
         logging.error("Failed to save NGINX config." + err.strerror)
+        sys.exit(3)
+
+def write_server_config_templage(server_config, args):
+    # Load template
+    try:
+        template = Template(filename=args.server_config_template)
+    except IOError as err:
+        logging.error("Failed to load server config template. " + err.strerror)
+        sys.exit(3)
+
+    conf = template.render(service_configs=args.service_configs)
+
+    # Save nginx conf
+    try:
+        f = open(server_config, 'w+')
+        f.write(conf)
+        f.close()
+    except IOError as err:
+        logging.error("Failed to save server config." + err.strerror)
         sys.exit(3)
 
 
@@ -148,7 +170,40 @@ def start_nginx(nginx, nginx_conf):
         sys.exit(3)
 
 
-def fetch_service_config(args, service_config):
+def fetch_and_save_service_config(args, token, version, filename):
+    try:
+        # build request url
+        service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.service,
+                                                    version)
+        # Validate service config if we have service name and version
+        logging.info("Fetching the service configuration "\
+                     "from the service management service")
+        # download service config
+        config = fetch.fetch_service_json(service_mgmt_url, token)
+
+        # Save service json for ESP
+        service_config = args.config_dir + "/" + filename
+
+        try:
+            f = open(service_config, 'w+')
+            json.dump(config, f, sort_keys=True, indent=2,
+                      separators=(',', ': '))
+            f.close()
+        except IOError as err:
+            logging.error("Cannot save service config." + err.strerror)
+            sys.exit(3)
+
+    except fetch.FetchError as err:
+        logging.error(err.message)
+        sys.exit(err.code)
+
+# config_id might have invalid character for file name.
+def generate_service_config_filename(version):
+    return str(uuid.uuid5(uuid.NAMESPACE_DNS, str(version)))
+
+def fetch_service_config(args):
+    args.service_configs = {};
+
     try:
         if args.service_config_url is not None:
             service_mgmt_url = args.service_config_url
@@ -182,39 +237,21 @@ def fetch_service_config(args, service_config):
                 logging.info(
                     "Fetching the service config ID from the rollouts service")
                 rollout = fetch.fetch_latest_rollout(args.service, token)
-                version = rollout.iterkeys().next();
-                if version is not None:
-                  args.version = version
-
-            # Check service config ID is specified
-            if args.version is None:
-                logging.error("Unable to get service config ID");
-                sys.exit(3)
-
-            service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.service,
-                                                                args.version)
-
-        # Validate service config if we have service name and version
-        logging.info("Fetching the service configuration "\
-                     "from the service management service")
-        config = fetch.fetch_service_json(service_mgmt_url, token)
-
-        # Save service json for ESP
-        try:
-            f = open(service_config, 'w+')
-            json.dump(config, f, sort_keys=True, indent=2,
-                    separators=(',', ': '))
-            f.close()
-        except IOError as err:
-            logging.error("Cannot save service config." + err.strerror)
-            sys.exit(3)
+                for version, percentage in rollout.iteritems():
+                    filename = generate_service_config_filename(version)
+                    fetch_and_save_service_config(args, token, version, filename)
+                    args.service_configs[args.config_dir + "/" + filename] = percentage;
+            else:
+                filename = generate_service_config_filename(args.version)
+                fetch_and_save_service_config(args, token, args.version, filename)
+                args.service_configs[args.config_dir + "/" + filename] = 100;
 
     except fetch.FetchError as err:
         logging.error(err.message)
         sys.exit(err.code)
 
 
-def make_ingress(service_config, args):
+def make_ingress(args):
     ports = []
 
     # Set port by default
@@ -260,7 +297,6 @@ def make_ingress(service_config, args):
     locations = [Location(
             path='/',
             backends=backends,
-            service_config=service_config,
             proto=proto)]
 
     ingress = Ingress(
@@ -319,6 +355,11 @@ config file.'''.format(
     config file instead of the config template {template}. If you specify this
     option, then all the port options are ignored.
     '''.format(template=NGINX_CONF_TEMPLATE))
+
+    parser.add_argument('-r', '--server_config', help=''' Use a server
+    config file instead of the config template {template}. If you specify this
+    option, then all the server options are ignored.
+    '''.format(template=SERVER_CONF_TEMPLATE))
 
     parser.add_argument('-p', '--http_port', default=None, type=int, help='''
     Expose a port to accept HTTP/1.x connections.  By default, if you do not
@@ -385,6 +426,12 @@ config file.'''.format(
         default=NGINX_CONF_TEMPLATE,
         help=argparse.SUPPRESS)
 
+    # nginx.conf template
+    parser.add_argument('--server_config_template',
+        default=SERVER_CONF_TEMPLATE,
+        help=argparse.SUPPRESS)
+
+
     # nginx binary location
     parser.add_argument('--nginx',
         default=NGINX,
@@ -417,23 +464,28 @@ if __name__ == '__main__':
     write_pid_file()
 
     # Get service config
-    service_config = args.config_dir + "/service.json"
-
     if args.service_json_path:
-        service_config = args.service_json_path
-        assert_file_exists(service_config)
+        assert_file_exists(args.service_json_path)
+        args.service_configs = {args.service_json_path: 100}
     else:
         # Fetch service config and place it in the standard location
         ensure(args.config_dir)
-        fetch_service_config(args, service_config)
+        fetch_service_config(args)
 
-    # Start NGINX
-    if args.nginx_config is not None:
-        start_nginx(args.nginx, args.nginx_config)
+    # Generate or check server_config
+    if args.server_config:
+        assert_file_exists(args.server_config)
     else:
-        ingress = make_ingress(service_config, args)
+        args.server_config = args.config_dir + "/server_config.pb.txt"
+        write_server_config_templage(args.server_config, args)
+
+    # Generate nginx config if not specified
+    nginx_conf = args.nginx_config
+    if nginx_conf is None:
+        ingress = make_ingress(args)
         nginx_conf = args.config_dir + "/nginx.conf"
         ensure(args.config_dir)
         write_template(ingress, nginx_conf, args)
-        start_nginx(args.nginx, nginx_conf)
 
+    # Start NGINX
+    start_nginx(args.nginx, nginx_conf)
