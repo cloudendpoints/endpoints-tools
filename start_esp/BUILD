@@ -51,7 +51,16 @@ pkg_tar(
     name = "nginx-conf-template",
     files = [
         ":nginx-auto.conf.template",
-        ":server_config.pb.txt",
+    ],
+    mode = "0644",
+    package_dir = "/etc/nginx",
+    strip_prefix = ".",
+)
+
+pkg_tar(
+    name = "server-conf-template",
+    files = [
+        ":server-auto.conf.template",
     ],
     mode = "0644",
     package_dir = "/etc/nginx",
