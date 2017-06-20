@@ -153,7 +153,7 @@ def fetch_latest_rollout(service_name, access_token):
         raise FetchError(1, message_template.format(service_mgmt_url,
                                                     response.data))
 
-    return rollouts["rollouts"][0]["trafficPercentStrategy"]["percentages"]
+    return rollouts["rollouts"][0]
 
 def fetch_service_json(service_mgmt_url, access_token):
     """Fetch service config."""

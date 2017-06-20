@@ -13,12 +13,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+service_config_rollout {
 % for version, percentage  in service_configs.iteritems():
-init_service_configs {
-  service_config_file_full_path: "${version}"
-  traffic_percentage: ${percentage}
-}
+  traffic_percentages {
+    key: "${version}"
+    value: ${percentage}
+  }
 % endfor
+  rollout_id: "${rollout_id}"
+}
 experimental {
   disable_log_status: true
 }
+rollout_strategy: "${rollout_strategy}"
