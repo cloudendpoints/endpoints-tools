@@ -14,9 +14,9 @@
 # limitations under the License.
 
 service_config_rollout {
-% for version, percentage  in service_configs.iteritems():
+% for file_full_path, percentage  in service_configs.iteritems():
   traffic_percentages {
-    key: "${version}"
+    key: "${file_full_path}"
     value: ${percentage}
   }
 % endfor
