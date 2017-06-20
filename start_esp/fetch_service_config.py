@@ -147,6 +147,7 @@ def fetch_latest_rollout(service_name, access_token):
     if rollouts is None or \
       'rollouts' not in rollouts or \
       len(rollouts["rollouts"]) == 0 or \
+      "rolloutId" not in rollouts["rollouts"][0] or \
       "trafficPercentStrategy" not in rollouts["rollouts"][0] or \
       "percentages" not in rollouts["rollouts"][0]["trafficPercentStrategy"]:
         message_template = ("Invalid rollouts response (url {}, data {})")
