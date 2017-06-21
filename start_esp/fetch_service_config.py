@@ -147,13 +147,14 @@ def fetch_latest_rollout(service_name, access_token):
     if rollouts is None or \
       'rollouts' not in rollouts or \
       len(rollouts["rollouts"]) == 0 or \
+      "rolloutId" not in rollouts["rollouts"][0] or \
       "trafficPercentStrategy" not in rollouts["rollouts"][0] or \
       "percentages" not in rollouts["rollouts"][0]["trafficPercentStrategy"]:
         message_template = ("Invalid rollouts response (url {}, data {})")
         raise FetchError(1, message_template.format(service_mgmt_url,
                                                     response.data))
 
-    return rollouts["rollouts"][0]["trafficPercentStrategy"]["percentages"]
+    return rollouts["rollouts"][0]
 
 def fetch_service_json(service_mgmt_url, access_token):
     """Fetch service config."""

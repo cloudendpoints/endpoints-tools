@@ -73,6 +73,9 @@ DEFAULT_STATUS_PORT = 8090
 # Default backend
 DEFAULT_BACKEND = "127.0.0.1:8081"
 
+# Default rollout_strategy
+DEFAULT_ROLLOUT_STRATEGY = "fixed"
+
 # PID file (for nginx as a daemon)
 PID_FILE = "/var/run/nginx.pid"
 
@@ -133,7 +136,10 @@ def write_server_config_templage(server_config, args):
         logging.error("Failed to load server config template. " + err.strerror)
         sys.exit(3)
 
-    conf = template.render(service_configs=args.service_configs)
+    conf = template.render(
+             service_configs=args.service_configs,
+             rollout_id=args.rollout_id,
+             rollout_strategy=args.rollout_strategy)
 
     # Save nginx conf
     try:
@@ -237,7 +243,8 @@ def fetch_service_config(args):
                 logging.info(
                     "Fetching the service config ID from the rollouts service")
                 rollout = fetch.fetch_latest_rollout(args.service, token)
-                for version, percentage in rollout.iteritems():
+                args.rollout_id = rollout["rolloutId"]
+                for version, percentage in rollout["trafficPercentStrategy"]["percentages"].iteritems():
                     filename = generate_service_config_filename(version)
                     fetch_and_save_service_config(args, token, version, filename)
                     args.service_configs[args.config_dir + "/" + filename] = percentage;
@@ -403,6 +410,12 @@ config file.'''.format(
     health checking endpoint on the same ports as the application backend. For
     example, "-z healthz" makes ESP return code 200 for location "/healthz",
     instead of forwarding the request to the backend.  Default: not used.''')
+
+    parser.add_argument('-R', '--rollout_strategy',
+        default=DEFAULT_ROLLOUT_STRATEGY,
+        help='''The service config rollout strategy, [fixed|managed],
+        Default value: {strategy}'''.format(strategy=DEFAULT_ROLLOUT_STRATEGY),
+        choices=['fixed', 'managed'])
 
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
