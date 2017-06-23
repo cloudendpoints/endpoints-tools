@@ -20,7 +20,9 @@ service_config_rollout {
     value: ${percentage}
   }
 % endfor
+% if rollout_id:
   rollout_id: "${rollout_id}"
+  % endif
 }
 experimental {
   disable_log_status: true

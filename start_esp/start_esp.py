@@ -209,6 +209,7 @@ def generate_service_config_filename(version):
 
 def fetch_service_config(args):
     args.service_configs = {};
+    args.rollout_id = ""
 
     try:
         if args.service_config_url is not None:
