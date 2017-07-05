@@ -76,6 +76,9 @@ DEFAULT_BACKEND = "127.0.0.1:8081"
 # Default rollout_strategy
 DEFAULT_ROLLOUT_STRATEGY = "fixed"
 
+# Default xff_trusted_proxy_list
+DEFAULT_XFF_TRUSTED_PROXY_LIST = "0.0.0.0/0, 0::/0"
+
 # PID file (for nginx as a daemon)
 PID_FILE = "/var/run/nginx.pid"
 
@@ -117,6 +120,7 @@ def write_template(ingress, nginx_conf, args):
             resolver=args.dns,
             access_log=args.access_log,
             healthz=args.healthz,
+            xff_trusted_proxies=args.xff_trusted_proxies,
             tls_mutual_auth=args.tls_mutual_auth)
 
     # Save nginx conf
@@ -206,6 +210,15 @@ def fetch_and_save_service_config(args, token, version, filename):
 # config_id might have invalid character for file name.
 def generate_service_config_filename(version):
     return str(uuid.uuid5(uuid.NAMESPACE_DNS, str(version)))
+
+# parse xff_trusted_proxy_list
+def handle_xff_trusted_proxies(args):
+    args.xff_trusted_proxies = []
+    if args.xff_trusted_proxy_list is not None:
+        for proxy in args.xff_trusted_proxy_list.split(","):
+            proxy = proxy.strip()
+            if proxy:
+                args.xff_trusted_proxies.append(proxy)
 
 def fetch_service_config(args):
     args.service_configs = {};
@@ -418,6 +431,12 @@ config file.'''.format(
         Default value: {strategy}'''.format(strategy=DEFAULT_ROLLOUT_STRATEGY),
         choices=['fixed', 'managed'])
 
+    parser.add_argument('-x', '--xff_trusted_proxy_list',
+        default=DEFAULT_XFF_TRUSTED_PROXY_LIST,
+        help='''Comma separated list of trusted proxy for X-Forwarded-For
+        header, Default value: {xff_trusted_proxy_list}'''.
+        format(xff_trusted_proxy_list=DEFAULT_XFF_TRUSTED_PROXY_LIST))
+
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
     parser.add_argument('--service_json_path',
@@ -476,6 +495,9 @@ if __name__ == '__main__':
 
     # Write pid file for the supervising process
     write_pid_file()
+
+    # Handles IP addresses of trusted proxies
+    handle_xff_trusted_proxies(args)
 
     # Get service config
     if args.service_json_path:
