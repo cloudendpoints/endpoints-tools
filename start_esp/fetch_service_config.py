@@ -32,7 +32,7 @@ _GOOGLE_API_SCOPE = (
 _METADATA_PATH = "/computeMetadata/v1/instance"
 _METADATA_SERVICE_NAME = "endpoints-service-name"
 _METADATA_SERVICE_CONFIG_ID = "endpoints-service-config-id"
-_METADATA_SERVICE_CONFIG_ROLLOUT_STRATEGY = "endpoints-service-config-rollout-strategy"
+_METADATA_ROLLOUT_STRATEGY = "endpoints-rollout-strategy"
 
 class FetchError(Exception):
     """Error class for fetching and validation errors."""
@@ -45,7 +45,7 @@ class FetchError(Exception):
 def fetch_service_config_rollout_strategy(metadata):
     """Fetch service config rollout strategy from metadata URL."""
     url = metadata + _METADATA_PATH + "/attributes/" + \
-        _METADATA_SERVICE_CONFIG_ROLLOUT_STRATEGY
+        _METADATA_ROLLOUT_STRATEGY
     headers = {"Metadata-Flavor": "Google"}
     client = urllib3.PoolManager(ca_certs=certifi.where())
     try:
