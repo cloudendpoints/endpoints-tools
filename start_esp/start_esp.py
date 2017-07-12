@@ -56,10 +56,11 @@ HTTPS_PREFIX = "https://"
 # Metadata service
 METADATA_ADDRESS = "http://169.254.169.254"
 
+# Management service
+MANAGEMENT_ADDRESS = "https://servicemanagement.googleapis.com"
+
 # Service management service
-SERVICE_MGMT_URL_TEMPLATE = (
-    "https://servicemanagement.googleapis.com"
-    "/v1/services/{}/config?configId={}")
+SERVICE_MGMT_URL_TEMPLATE = ("{}/v1/services/{}/config?configId={}")
 
 # DNS resolver
 DNS_RESOLVER = "8.8.8.8"
@@ -142,6 +143,7 @@ def write_server_config_templage(server_config, args):
 
     conf = template.render(
              service_configs=args.service_configs,
+             management=args.management,
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy)
 
@@ -183,8 +185,9 @@ def start_nginx(nginx, nginx_conf):
 def fetch_and_save_service_config(args, token, version, filename):
     try:
         # build request url
-        service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.service,
-                                                    version)
+        service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.management,
+                                                            args.service,
+                                                            version)
         # Validate service config if we have service name and version
         logging.info("Fetching the service configuration "\
                      "from the service management service")
@@ -239,6 +242,16 @@ def fetch_service_config(args):
                 logging.error("Unable to get service name");
                 sys.exit(3)
 
+            # fetch service config rollout strategy from metadata, if not specified
+            if args.rollout_strategy is None or not args.rollout_strategy.strip():
+                logging.info(
+                    "Fetching the service config rollout strategy from the metadata service")
+                args.rollout_strategy = \
+                    fetch.fetch_service_config_rollout_strategy(args.metadata);
+
+            if args.rollout_strategy is None or not args.rollout_strategy.strip():
+                args.rollout_strategy = DEFAULT_ROLLOUT_STRATEGY
+
             # fetch service config ID, if not specified
             if args.version is None:
                 logging.info("Fetching the service config ID "\
@@ -253,10 +266,11 @@ def fetch_service_config(args):
                 token = fetch.make_access_token(args.service_account_key)
 
             # Fetch api version from latest successful rollouts
-            if args.version is None:
+            if args.version is None or not args.version.strip():
                 logging.info(
                     "Fetching the service config ID from the rollouts service")
-                rollout = fetch.fetch_latest_rollout(args.service, token)
+                rollout = fetch.fetch_latest_rollout(args.management,
+                                                     args.service, token)
                 args.rollout_id = rollout["rolloutId"]
                 for version, percentage in rollout["trafficPercentStrategy"]["percentages"].iteritems():
                     filename = generate_service_config_filename(version)
@@ -426,7 +440,7 @@ config file.'''.format(
     instead of forwarding the request to the backend.  Default: not used.''')
 
     parser.add_argument('-R', '--rollout_strategy',
-        default=DEFAULT_ROLLOUT_STRATEGY,
+        default=None,
         help='''The service config rollout strategy, [fixed|managed],
         Default value: {strategy}'''.format(strategy=DEFAULT_ROLLOUT_STRATEGY),
         choices=['fixed', 'managed'])
@@ -446,6 +460,11 @@ config file.'''.format(
     # Customize metadata service url prefix.
     parser.add_argument('-m', '--metadata',
         default=METADATA_ADDRESS,
+        help=argparse.SUPPRESS)
+
+    # Customize management service url prefix.
+    parser.add_argument('-g', '--management',
+        default=MANAGEMENT_ADDRESS,
         help=argparse.SUPPRESS)
 
     # Fetched service config and generated nginx config are placed
