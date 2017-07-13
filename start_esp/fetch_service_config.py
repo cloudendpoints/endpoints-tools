@@ -23,8 +23,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # Service management service
 SERVICE_MGMT_ROLLOUTS_URL_TEMPLATE = (
-    "https://servicemanagement.googleapis.com"
-    "/v1/services/{}/rollouts?filter=status=SUCCESS")
+    "{}/v1/services/{}/rollouts?filter=status=SUCCESS")
 
 _GOOGLE_API_SCOPE = (
     "https://www.googleapis.com/auth/service.management.readonly")
@@ -33,6 +32,7 @@ _GOOGLE_API_SCOPE = (
 _METADATA_PATH = "/computeMetadata/v1/instance"
 _METADATA_SERVICE_NAME = "endpoints-service-name"
 _METADATA_SERVICE_CONFIG_ID = "endpoints-service-config-id"
+_METADATA_ROLLOUT_STRATEGY = "endpoints-rollout-strategy"
 
 class FetchError(Exception):
     """Error class for fetching and validation errors."""
@@ -41,6 +41,29 @@ class FetchError(Exception):
         self.message = message
     def __str__(self):
         return self.message
+
+def fetch_service_config_rollout_strategy(metadata):
+    """Fetch service config rollout strategy from metadata URL."""
+    url = metadata + _METADATA_PATH + "/attributes/" + \
+        _METADATA_ROLLOUT_STRATEGY
+    headers = {"Metadata-Flavor": "Google"}
+    client = urllib3.PoolManager(ca_certs=certifi.where())
+    try:
+        response = client.request("GET", url, headers=headers)
+    except:
+        logging.info("Failed to fetch service config rollout strategy " + \
+            "from the metadata server: " + url);
+        return None
+    status_code = response.status
+
+    if status_code != 200:
+        message_template = "Fetching service config rollout strategy failed (url {}, status code {})"
+        logging.info(message_template.format(url, status_code))
+        return None
+
+    rollout_strategy = response.data
+    logging.info("Service config rollout strategy: " + rollout_strategy)
+    return rollout_strategy
 
 def fetch_service_name(metadata):
     """Fetch service name from metadata URL."""
@@ -62,7 +85,7 @@ def fetch_service_name(metadata):
     logging.info("Service name: " + name)
     return name
 
-
+# config_id from metadata is optional. Returns None instead of raising error
 def fetch_service_config_id(metadata):
     """Fetch service config ID from metadata URL."""
     url = metadata + _METADATA_PATH + "/attributes/" + _METADATA_SERVICE_CONFIG_ID
@@ -72,17 +95,20 @@ def fetch_service_config_id(metadata):
         response = client.request("GET", url, headers=headers)
         if response.status != 200:
             message_template = "Fetching service config ID failed (url {}, status code {})"
-            raise FetchError(1, message_template.format(url, response.status))
+            logging.info(message_template.format(url, response.status));
+            raise None
     except:
         url = metadata + _METADATA_PATH + "/attributes/endpoints-service-version"
         try:
             response = client.request("GET", url, headers=headers)
         except:
-            raise FetchError(1,
-                    "Failed to fetch service config ID from the metadata server: " + url)
+            logging.info("Failed to fetch service config ID from the metadata server: " + url)
+            return None
+
         if response.status != 200:
             message_template = "Fetching service config ID failed (url {}, status code {})"
-            raise FetchError(1, message_template.format(url, response.status))
+            logging.info(message_template.format(url, response.status))
+            return None
 
     version = response.data
     logging.info("Service config ID:" + version)
@@ -119,7 +145,7 @@ def fetch_access_token(metadata):
     token = json.loads(response.data)["access_token"]
     return token
 
-def fetch_latest_rollout(service_name, access_token):
+def fetch_latest_rollout(management_service, service_name, access_token):
     """Fetch rollouts"""
     if access_token is None:
         headers = {}
@@ -128,8 +154,8 @@ def fetch_latest_rollout(service_name, access_token):
 
     client = urllib3.PoolManager(ca_certs=certifi.where())
 
-    service_mgmt_url = SERVICE_MGMT_ROLLOUTS_URL_TEMPLATE.format(service_name)
-
+    service_mgmt_url = SERVICE_MGMT_ROLLOUTS_URL_TEMPLATE.format(management_service,
+                                                                 service_name)
     try:
         response = client.request("GET", service_mgmt_url, headers=headers)
     except:

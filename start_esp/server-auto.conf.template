@@ -22,8 +22,13 @@ service_config_rollout {
 % endfor
 % if rollout_id:
   rollout_id: "${rollout_id}"
-  % endif
+% endif
 }
+% if management:
+service_management_config {
+  url: "${management}"
+}
+% endif
 experimental {
   disable_log_status: true
 }
