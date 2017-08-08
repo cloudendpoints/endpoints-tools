@@ -181,16 +181,8 @@ def start_nginx(nginx, nginx_conf):
         logging.error(err.strerror)
         sys.exit(3)
 
-
-def fetch_and_save_service_config(args, token, version, filename):
+def fetch_and_save_service_config_url(args, token, service_mgmt_url, filename):
     try:
-        # build request url
-        service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.management,
-                                                            args.service,
-                                                            version)
-        # Validate service config if we have service name and version
-        logging.info("Fetching the service configuration "\
-                     "from the service management service")
         # download service config
         config = fetch.fetch_service_json(service_mgmt_url, token)
 
@@ -205,6 +197,21 @@ def fetch_and_save_service_config(args, token, version, filename):
         except IOError as err:
             logging.error("Cannot save service config." + err.strerror)
             sys.exit(3)
+
+    except fetch.FetchError as err:
+        logging.error(err.message)
+        sys.exit(err.code)
+
+def fetch_and_save_service_config(args, token, version, filename):
+    try:
+        # build request url
+        service_mgmt_url = SERVICE_MGMT_URL_TEMPLATE.format(args.management,
+                                                            args.service,
+                                                            version)
+        # Validate service config if we have service name and version
+        logging.info("Fetching the service configuration "\
+                     "from the service management service")
+        fetch_and_save_service_config_url(args, token, service_mgmt_url, filename)
 
     except fetch.FetchError as err:
         logging.error(err.message)
@@ -228,8 +235,17 @@ def fetch_service_config(args):
     args.rollout_id = ""
 
     try:
+        # Get the access token
+        if args.service_account_key is None:
+            logging.info("Fetching an access token from the metadata service")
+            token = fetch.fetch_access_token(args.metadata)
+        else:
+            token = fetch.make_access_token(args.service_account_key)
+
         if args.service_config_url is not None:
-            service_mgmt_url = args.service_config_url
+            filename = generate_service_config_filename(args.service_config_url)
+            fetch_and_save_service_config_url(args, token, args.service_config_url, filename)
+            args.service_configs[args.config_dir + "/" + filename] = 100;
         else:
             # fetch service name, if not specified
             if args.service is None:
@@ -257,13 +273,6 @@ def fetch_service_config(args):
                 logging.info("Fetching the service config ID "\
                              "from the metadata service")
                 args.version = fetch.fetch_service_config_id(args.metadata)
-
-            # Get the access token
-            if args.service_account_key is None:
-                logging.info("Fetching an access token from the metadata service")
-                token = fetch.fetch_access_token(args.metadata)
-            else:
-                token = fetch.make_access_token(args.service_account_key)
 
             # Fetch api version from latest successful rollouts
             if args.version is None or not args.version.strip():
