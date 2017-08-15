@@ -38,6 +38,7 @@ import (
 type Service struct {
 	Name            string
 	Version         string
+	RolloutStrategy string
 	CredentialsFile string
 	ProducerProject string
 
