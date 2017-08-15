@@ -107,6 +107,9 @@ func init() {
 	deployCmd.PersistentFlags().StringVarP(&cfg.Version,
 		"version", "v", "",
 		"API service config ID, empty to use the latest")
+	deployCmd.PersistentFlags().StringVarP(&cfg.RolloutStrategy,
+		"rollout_strategy", "R", "fixed",
+		"The service config rollout strategy")
 	deployCmd.PersistentFlags().StringVarP(&cfg.CredentialsFile,
 		"creds", "k", "",
 		"Service account credentials JSON file")
@@ -212,8 +215,15 @@ func MakeContainer(serviceName string, ports Ports, backend string) (*api.Contai
 
 	var args = []string{
 		"-s", cfg.Name,
-		"-v", cfg.Version,
 		"-a", backend,
+	}
+
+	if len(cfg.Version) != 0 {
+		args = append(args, "-v", cfg.Version)
+	}
+
+	if len(cfg.RolloutStrategy) != 0 {
+		args = append(args, "-R", cfg.RolloutStrategy)
 	}
 
 	if customNginxConf != "" {
