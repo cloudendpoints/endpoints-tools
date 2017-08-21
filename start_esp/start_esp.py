@@ -44,6 +44,7 @@ NGINX = "/usr/sbin/nginx"
 # Location of NGINX template
 NGINX_CONF_TEMPLATE = "/etc/nginx/nginx-auto.conf.template"
 SERVER_CONF_TEMPLATE = "/etc/nginx/server-auto.conf.template"
+# Custom nginx config used by customers are hardcoded to this path
 SERVER_CONF = "/etc/nginx/server_config.pb.txt"
 
 # Location of generated config files
