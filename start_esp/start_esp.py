@@ -44,6 +44,7 @@ NGINX = "/usr/sbin/nginx"
 # Location of NGINX template
 NGINX_CONF_TEMPLATE = "/etc/nginx/nginx-auto.conf.template"
 SERVER_CONF_TEMPLATE = "/etc/nginx/server-auto.conf.template"
+SERVER_CONF = "/etc/nginx/server_config.pb.txt"
 
 # Location of generated config files
 CONFIG_DIR = "/etc/nginx/endpoints"
@@ -114,7 +115,6 @@ def write_template(ingress, nginx_conf, args):
     conf = template.render(
             ingress=ingress,
             pid_file=PID_FILE,
-            server_config=args.server_config,
             status=args.status_port,
             service_account=args.service_account_key,
             metadata=args.metadata,
@@ -400,11 +400,6 @@ config file.'''.format(
     option, then all the port options are ignored.
     '''.format(template=NGINX_CONF_TEMPLATE))
 
-    parser.add_argument('-r', '--server_config', help=''' Use a server
-    config file instead of the config template {template}. If you specify this
-    option, then all the server options are ignored.
-    '''.format(template=SERVER_CONF_TEMPLATE))
-
     parser.add_argument('-p', '--http_port', default=None, type=int, help='''
     Expose a port to accept HTTP/1.x connections.  By default, if you do not
     specify any of the port options (-p, -P, and -S), then port {port} is
@@ -536,12 +531,8 @@ if __name__ == '__main__':
         ensure(args.config_dir)
         fetch_service_config(args)
 
-    # Generate or check server_config
-    if args.server_config:
-        assert_file_exists(args.server_config)
-    else:
-        args.server_config = args.config_dir + "/server_config.pb.txt"
-        write_server_config_templage(args.server_config, args)
+    # Generate server_config
+    write_server_config_templage(SERVER_CONF, args)
 
     # Generate nginx config if not specified
     nginx_conf = args.nginx_config
