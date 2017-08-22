@@ -244,6 +244,8 @@ def fetch_service_config(args):
             token = fetch.make_access_token(args.service_account_key)
 
         if args.service_config_url is not None:
+            # Set the file name to "service.json", if either service
+            # config url or version is specified for backward compatibility
             filename = "service.json"
             fetch_and_save_service_config_url(args, token, args.service_config_url, filename)
             args.service_configs[args.config_dir + "/" + filename] = 100;
@@ -287,6 +289,8 @@ def fetch_service_config(args):
                     fetch_and_save_service_config(args, token, version, filename)
                     args.service_configs[args.config_dir + "/" + filename] = percentage;
             else:
+                # Set the file name to "service.json", if either service
+                # config url or version is specified for backward compatibility
                 filename = "service.json"
                 fetch_and_save_service_config(args, token, args.version, filename)
                 args.service_configs[args.config_dir + "/" + filename] = 100;
