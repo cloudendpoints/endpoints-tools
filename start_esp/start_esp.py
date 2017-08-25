@@ -82,8 +82,8 @@ DEFAULT_ROLLOUT_STRATEGY = "fixed"
 # Default xff_trusted_proxy_list
 DEFAULT_XFF_TRUSTED_PROXY_LIST = "0.0.0.0/0, 0::/0"
 
-# PID file (for nginx as a daemon)
-PID_FILE = "/var/run/nginx.pid"
+# Default PID file location (for nginx as a daemon)
+DEFAULT_PID_FILE = "/var/run/nginx.pid"
 
 # Google default application credentials environment variable
 GOOGLE_CREDS_KEY = "GOOGLE_APPLICATION_CREDENTIALS"
@@ -95,13 +95,13 @@ Location = collections.namedtuple('Location',
 Ingress = collections.namedtuple('Ingress',
         ['ports', 'host', 'locations'])
 
-def write_pid_file():
+def write_pid_file(args):
     try:
-        f = open(PID_FILE, 'w+')
+        f = open(args.pid_file, 'w+')
         f.write(str(os.getpid()))
         f.close()
     except IOError as err:
-        logging.error("Failed to save PID file: " + PID_FILE)
+        logging.error("Failed to save PID file: " + args.pid_file)
         logging.error(err.strerror)
         sys.exit(3)
 
@@ -115,7 +115,7 @@ def write_template(ingress, nginx_conf, args):
 
     conf = template.render(
             ingress=ingress,
-            pid_file=PID_FILE,
+            pid_file=args.pid_file,
             status=args.status_port,
             service_account=args.service_account_key,
             metadata=args.metadata,
@@ -508,6 +508,11 @@ config file.'''.format(
         default='/dev/stdout',
         help=argparse.SUPPRESS)
 
+    # PID file location.
+    parser.add_argument('--pid_file',
+        default=DEFAULT_PID_FILE,
+        help=argparse.SUPPRESS)
+
     return parser
 
 
@@ -522,7 +527,7 @@ if __name__ == '__main__':
             args.service_account_key = os.environ[GOOGLE_CREDS_KEY]
 
     # Write pid file for the supervising process
-    write_pid_file()
+    write_pid_file(args)
 
     # Handles IP addresses of trusted proxies
     handle_xff_trusted_proxies(args)
