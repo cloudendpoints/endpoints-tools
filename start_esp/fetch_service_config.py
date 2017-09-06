@@ -57,8 +57,7 @@ def fetch_service_config_rollout_strategy(metadata):
     status_code = response.status
 
     if status_code != 200:
-        message_template = "Fetching service config rollout strategy failed (url {}, status code {})"
-        logging.info(message_template.format(url, status_code))
+        # Fetching rollout strategy is optional. No need to leave log
         return None
 
     rollout_strategy = response.data
@@ -94,8 +93,7 @@ def fetch_service_config_id(metadata):
     try:
         response = client.request("GET", url, headers=headers)
         if response.status != 200:
-            message_template = "Fetching service config ID failed (url {}, status code {})"
-            logging.info(message_template.format(url, response.status));
+            # Fetching service config id is optional. No need to leave log
             raise None
     except:
         url = metadata + _METADATA_PATH + "/attributes/endpoints-service-version"
