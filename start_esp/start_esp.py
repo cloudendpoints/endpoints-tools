@@ -251,18 +251,21 @@ def fetch_service_config(args):
             args.service_configs[args.config_dir + "/" + filename] = 100;
         else:
             # fetch service name, if not specified
-            if args.service is None:
+            if (args.service is None or not args.service.strip()) and args.check_metadata:
                 logging.info(
                     "Fetching the service name from the metadata service")
                 args.service = fetch.fetch_service_name(args.metadata)
 
             # if service name is not specified, display error message and exit
             if args.service is None:
-                logging.error("Unable to get service name");
+                if args.check_metadata:
+                    logging.error("Unable to fetch service name from the metadata service");
+                else:
+                    logging.error("Service name is not specified");
                 sys.exit(3)
 
             # fetch service config rollout strategy from metadata, if not specified
-            if args.rollout_strategy is None or not args.rollout_strategy.strip():
+            if (args.rollout_strategy is None or not args.rollout_strategy.strip()) and args.check_metadata:
                 logging.info(
                     "Fetching the service config rollout strategy from the metadata service")
                 args.rollout_strategy = \
@@ -272,7 +275,7 @@ def fetch_service_config(args):
                 args.rollout_strategy = DEFAULT_ROLLOUT_STRATEGY
 
             # fetch service config ID, if not specified
-            if args.version is None:
+            if (args.version is None or not args.version.strip()) and args.check_metadata:
                 logging.info("Fetching the service config ID "\
                              "from the metadata service")
                 args.version = fetch.fetch_service_config_id(args.metadata)
@@ -459,6 +462,10 @@ config file.'''.format(
         help='''Comma separated list of trusted proxy for X-Forwarded-For
         header, Default value: {xff_trusted_proxy_list}'''.
         format(xff_trusted_proxy_list=DEFAULT_XFF_TRUSTED_PROXY_LIST))
+
+    parser.add_argument('--check_metadata', action='store_true',
+        help='''Enable fetching access token, service name, service config ID
+        and rollout strategy from the metadata service''')
 
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
