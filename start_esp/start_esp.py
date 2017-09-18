@@ -238,11 +238,6 @@ def fetch_service_config(args):
     try:
         # Get the access token
         if args.service_account_key is None:
-            if args.check_metadata == False:
-                logging.info("Either service_account_key is provided or "\
-                             "check_metadata option needs to be turned on")
-                sys.exit(3)
-
             logging.info("Fetching an access token from the metadata service")
             token = fetch.fetch_access_token(args.metadata)
         else:
