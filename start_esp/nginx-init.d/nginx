@@ -32,7 +32,7 @@ SLEEPSEC=1
 
 [ -x $DAEMON ] || exit 0
 
-DAEMON_ARGS="-p $PORT -N $STATUS_PORT $DAEMON_ARGS"
+DAEMON_ARGS="-p $PORT -N $STATUS_PORT $DAEMON_ARGS --check_metadata"
 
 . /lib/init/vars.sh
 
