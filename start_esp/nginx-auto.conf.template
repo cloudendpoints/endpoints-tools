@@ -78,6 +78,14 @@ http {
     }
 % endif
 
+% if underscores_in_headers:
+    underscores_in_headers on;
+% endif
+
+% if allow_invalid_headers:
+    ignore_invalid_headers off;
+% endif
+
 % for i, location in enumerate(ingress.locations):
     location ${location.path} {
       # Begin Endpoints v2 Support
