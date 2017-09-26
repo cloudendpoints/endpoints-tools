@@ -123,7 +123,9 @@ def write_template(ingress, nginx_conf, args):
             access_log=args.access_log,
             healthz=args.healthz,
             xff_trusted_proxies=args.xff_trusted_proxies,
-            tls_mutual_auth=args.tls_mutual_auth)
+            tls_mutual_auth=args.tls_mutual_auth,
+            underscores_in_headers=args.underscores_in_headers,
+            allow_invalid_headers=args.allow_invalid_headers)
 
     # Save nginx conf
     try:
@@ -466,6 +468,17 @@ config file.'''.format(
     parser.add_argument('--check_metadata', action='store_true',
         help='''Enable fetching access token, service name, service config ID
         and rollout strategy from the metadata service''')
+
+    parser.add_argument('--underscores_in_headers', action='store_true',
+        help='''Allow headers contain underscores to pass through by setting
+        "underscores_in_headers on;" directive.
+        ''')
+
+    parser.add_argument('--allow_invalid_headers', action='store_true',
+        help='''Allow "invalid" headers by adding "ignore_invalid_headers off;"
+        directive. This is required to support all legal characters specified
+        in RFC 7230.
+        ''')
 
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
