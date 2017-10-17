@@ -484,8 +484,8 @@ config file.'''.format(
 
     parser.add_argument('--api_basepath',
         help='''Set the prefix of the API request path. If the request path
-        starts with the api_basepath, then nginx strips the prefix from the request path and rewrites the api_basepath
-        internally.''')
+        starts with the api_basepath, then nginx strips the prefix from the request
+        path and rewrites the api_basepath internally.''')
 
     parser.add_argument('--api_basepath_hard_match', default=False, action='store_true',
         help='''Turn on the base path hard match rule. If the option is enabled
