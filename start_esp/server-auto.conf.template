@@ -32,4 +32,10 @@ service_management_config {
 experimental {
   disable_log_status: true
 }
+% if api_basepath:
+api_service_config {
+  base_path: "${api_basepath}"
+  base_path_hard_match: ${api_basepath_hard_match}
+}
+% endif
 rollout_strategy: "${rollout_strategy}"
