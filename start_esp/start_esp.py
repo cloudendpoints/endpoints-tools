@@ -144,13 +144,23 @@ def write_server_config_templage(server_config, args):
         logging.error("Failed to load server config template. " + err.strerror)
         sys.exit(3)
 
+    api_basepath = ""
+    api_basepath_hard_match = False
+
+    if args.hard_strip_basepath:
+        api_basepath = args.hard_strip_basepath
+        api_basepath_hard_match = True
+
+    if args.soft_strip_basepath:
+        api_basepath = args.soft_strip_basepath
+
     conf = template.render(
              service_configs=args.service_configs,
              management=args.management,
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy,
-             api_basepath=args.api_basepath,
-             api_basepath_hard_match=args.api_basepath_hard_match)
+             api_basepath=api_basepath,
+             api_basepath_hard_match=api_basepath_hard_match)
 
     # Save nginx conf
     try:
@@ -482,16 +492,22 @@ config file.'''.format(
         in RFC 7230.
         ''')
 
-    parser.add_argument('--api_basepath',
-        help='''Set the prefix of the API request path. If the request path
-        starts with the api_basepath, then nginx strips the prefix from the request
-        path and rewrites the api_basepath internally.''')
+    # soft_strip_basepath and hard_strip_basepath are mutually exclusive
+    basepath_group = parser.add_mutually_exclusive_group(required=False)
 
-    parser.add_argument('--api_basepath_hard_match', default=False, action='store_true',
-        help='''Turn on the base path hard match rule. If the option is enabled
-        then nginx returns HTTP status code 404 for the request path which
-        doesn't start with the api_basepath. Otherwise nginx handles the
-        original request path. The default value is False''')
+    basepath_group.add_argument('--soft_strip_basepath',
+        help='''Set the prefix of the API request path. If the request path
+        starts with the basepath, then ESP will strip the prefix from
+        the request path and rewrites the URL before passing it to the backend.
+        If request path does not include base path prefix,  the request
+        will be passed to the backend without any path rewrite..''')
+
+    basepath_group.add_argument('--hard_strip_basepath',
+        help='''Set the prefix of the API request path. If the request path
+        starts with the basepath, then ESP will strip the prefix from
+        the request path and rewrites the URL before passing it to the backend.
+        If request path does not include base path prefix,  the request is
+        rejected with 404..''')
 
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
