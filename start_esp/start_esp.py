@@ -148,7 +148,8 @@ def write_server_config_templage(server_config, args):
              service_configs=args.service_configs,
              management=args.management,
              rollout_id=args.rollout_id,
-             rollout_strategy=args.rollout_strategy)
+             rollout_strategy=args.rollout_strategy,
+             always_print_primitive_fields=args.transcoding_always_print_primitive_fields)
 
     # Save nginx conf
     try:
@@ -531,6 +532,11 @@ config file.'''.format(
     # PID file location.
     parser.add_argument('--pid_file',
         default=DEFAULT_PID_FILE,
+        help=argparse.SUPPRESS)
+
+    # always_print_primitive_fields.
+    parser.add_argument('--transcoding_always_print_primitive_fields',
+        default='false',
         help=argparse.SUPPRESS)
 
     return parser
