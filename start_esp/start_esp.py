@@ -536,7 +536,7 @@ config file.'''.format(
 
     # always_print_primitive_fields.
     parser.add_argument('--transcoding_always_print_primitive_fields',
-        default='false',
+        action='store_true',
         help=argparse.SUPPRESS)
 
     return parser

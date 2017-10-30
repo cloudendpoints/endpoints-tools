@@ -31,6 +31,8 @@ service_management_config {
 % endif
 experimental {
   disable_log_status: true
-  always_print_primitive_fields: ${always_print_primitive_fields}
+% if always_print_primitive_fields:
+  always_print_primitive_fields: true
+% endif
 }
 rollout_strategy: "${rollout_strategy}"
