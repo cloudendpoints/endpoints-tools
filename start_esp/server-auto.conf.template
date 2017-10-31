@@ -31,6 +31,9 @@ service_management_config {
 % endif
 experimental {
   disable_log_status: true
+% if always_print_primitive_fields:
+  always_print_primitive_fields: true
+% endif
 }
 % if rewrite_rules:
 api_service_config {

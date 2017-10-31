@@ -493,12 +493,19 @@ config file.'''.format(
 
     parser.add_argument('--rewrite', action='append', help=
     '''Internally redirect the request uri with a pair of pattern and
-    replacement. If the request uri matches perl compatible regular expression,
+    replacement. Pattern and replacement should be separated by whitespace(' ').
+    If the request uri matches perl compatible regular expression,
     then the request uri will be replaced with the replacement.
     pattern and replacement follow the rewrite function of Module
     ngx_http_rewrite_module except flag.
     http://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite
-    The "rewrite" argument can be repeat multiple times.''')
+    The "rewrite" argument can be repeat multiple times. Rewrite rules are
+    executed sequentially in the order of arguments.
+
+    ex.
+    --rewrite "/apis/shelves\\\\?id=(.*)&key=(.*) /shelves/\$1?key=\$2"
+    --rewrite "^/api/v1/view/(.*) /view/\$1"
+    ''')
 
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
