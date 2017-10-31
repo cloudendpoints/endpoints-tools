@@ -30,7 +30,7 @@ error_log stderr warn;
 http {
   include /etc/nginx/mime.types;
   server_tokens off;
-  client_max_body_size 32m;
+  client_max_body_size ${client_max_body_size};
   client_body_buffer_size 128k;
 
   # HTTP subrequests

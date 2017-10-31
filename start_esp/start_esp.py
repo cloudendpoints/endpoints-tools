@@ -125,7 +125,8 @@ def write_template(ingress, nginx_conf, args):
             xff_trusted_proxies=args.xff_trusted_proxies,
             tls_mutual_auth=args.tls_mutual_auth,
             underscores_in_headers=args.underscores_in_headers,
-            allow_invalid_headers=args.allow_invalid_headers)
+            allow_invalid_headers=args.allow_invalid_headers,
+            client_max_body_size=args.client_max_body_size)
 
     # Save nginx conf
     try:
@@ -480,6 +481,14 @@ config file.'''.format(
         directive. This is required to support all legal characters specified
         in RFC 7230.
         ''')
+
+    parser.add_argument('--client_max_body_size', default='32m', help='''
+    Sets the maximum allowed size of the client request body, specified
+    in the "Content-Length" request header field. If the size in a request
+    exceeds the configured value, the 413 (Request Entity Too Large) error
+    is returned to the client. Please be aware that browsers cannot correctly
+    display this error. Setting size to 0 disables checking of client request
+    body size.''')
 
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
