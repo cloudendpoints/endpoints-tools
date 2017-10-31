@@ -35,4 +35,11 @@ experimental {
   always_print_primitive_fields: true
 % endif
 }
+% if rewrite_rules:
+api_service_config {
+% for rewrite_rule  in rewrite_rules:
+  rewrite: "${rewrite_rule}"
+% endfor
+}
+% endif
 rollout_strategy: "${rollout_strategy}"

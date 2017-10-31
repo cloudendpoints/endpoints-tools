@@ -150,7 +150,8 @@ def write_server_config_templage(server_config, args):
              management=args.management,
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy,
-             always_print_primitive_fields=args.transcoding_always_print_primitive_fields)
+             always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
+             rewrite_rules=args.rewrite)
 
     # Save nginx conf
     try:
@@ -489,6 +490,21 @@ config file.'''.format(
     is returned to the client. Please be aware that browsers cannot correctly
     display this error. Setting size to 0 disables checking of client request
     body size.''')
+
+    parser.add_argument('--rewrite', action='append', help=
+    '''Internally redirect the request uri with a pair of pattern and
+    replacement. Pattern and replacement should be separated by whitespace.
+    If the request uri matches perl compatible regular expression,
+    then the request uri will be replaced with the replacement.
+    pattern and replacement follow the rewrite function of Module
+    ngx_http_rewrite_module except flag.
+    http://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite
+    The "rewrite" argument can be repeat multiple times. Rewrite rules are
+    executed sequentially in the order of arguments.
+    ex.
+    --rewrite "/apis/shelves\\\\?id=(.*)&key=(.*) /shelves/\$1?key=\$2"
+    --rewrite "^/api/v1/view/(.*) /view/\$1"
+    ''')
 
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
