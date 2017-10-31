@@ -493,7 +493,7 @@ config file.'''.format(
 
     parser.add_argument('--rewrite', action='append', help=
     '''Internally redirect the request uri with a pair of pattern and
-    replacement. Pattern and replacement should be separated by whitespace(' ').
+    replacement. Pattern and replacement should be separated by whitespace.
     If the request uri matches perl compatible regular expression,
     then the request uri will be replaced with the replacement.
     pattern and replacement follow the rewrite function of Module
