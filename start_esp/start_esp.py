@@ -501,7 +501,6 @@ config file.'''.format(
     http://nginx.org/en/docs/http/ngx_http_rewrite_module.html#rewrite
     The "rewrite" argument can be repeat multiple times. Rewrite rules are
     executed sequentially in the order of arguments.
-
     ex.
     --rewrite "/apis/shelves\\\\?id=(.*)&key=(.*) /shelves/\$1?key=\$2"
     --rewrite "^/api/v1/view/(.*) /view/\$1"
