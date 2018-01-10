@@ -126,6 +126,7 @@ def write_template(ingress, nginx_conf, args):
             tls_mutual_auth=args.tls_mutual_auth,
             underscores_in_headers=args.underscores_in_headers,
             allow_invalid_headers=args.allow_invalid_headers,
+            enable_websocket=args.enable_websocket,
             client_max_body_size=args.client_max_body_size)
 
     # Save nginx conf
@@ -481,6 +482,10 @@ config file.'''.format(
         help='''Allow "invalid" headers by adding "ignore_invalid_headers off;"
         directive. This is required to support all legal characters specified
         in RFC 7230.
+        ''')
+
+    parser.add_argument('--enable_websocket', action='store_true',
+        help='''Enable nginx WebSocket support.
         ''')
 
     parser.add_argument('--client_max_body_size', default='32m', help='''

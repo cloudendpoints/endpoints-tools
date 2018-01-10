@@ -54,6 +54,13 @@ http {
   real_ip_header    X-Forwarded-For;
   real_ip_recursive on;
 
+% if enable_websocket:
+  map $http_upgrade $connection_upgrade {
+    default upgrade;
+    ''      close;
+  }
+% endif
+
   server {
     server_name ${ingress.host};
 
@@ -99,6 +106,11 @@ http {
 % endif
       }
       # End Endpoints v2 Support
+
+% if enable_websocket:
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+% endif
 
 % if location.proto == 'grpc':
       # WARNING: only first backend is used
