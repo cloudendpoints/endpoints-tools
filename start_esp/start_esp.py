@@ -488,6 +488,14 @@ config file.'''.format(
         help='''Enable nginx WebSocket support.
         ''')
 
+    parser.add_argument('--generate_self_signed_cert', action='store_true',
+        help='''Generate a self-signed certificate and key at start, then
+        store them in /etc/nginx/ssl/nginx.crt and /etc/nginx/ssl/nginx.key.
+        This is useful when only a random self-sign cert is needed to serve
+        HTTPS requests. Generated certificate will have Common Name
+        "localhost" and valid for 10 years.
+        ''')
+
     parser.add_argument('--client_max_body_size', default='32m', help='''
     Sets the maximum allowed size of the client request body, specified
     in the "Content-Length" request header field. If the size in a request
@@ -607,6 +615,16 @@ if __name__ == '__main__':
         nginx_conf = args.config_dir + "/nginx.conf"
         ensure(args.config_dir)
         write_template(ingress, nginx_conf, args)
+
+    # Generate self-signed cert if needed
+    if args.generate_self_signed_cert:
+        if not os.path.exists("/etc/nginx/ssl"):
+            os.makedirs("/etc/nginx/ssl")
+        logging.info("Generating self-signed certificate...")
+        os.system(("openssl req -x509 -newkey rsa:2048"
+                   " -keyout /etc/nginx/ssl/nginx.key -nodes"
+                   " -out /etc/nginx/ssl/nginx.crt"
+                   ' -days 3650 -subj "/CN=localhost"'))
 
     # Start NGINX
     start_nginx(args.nginx, nginx_conf)
