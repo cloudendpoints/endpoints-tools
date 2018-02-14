@@ -598,6 +598,7 @@ if __name__ == '__main__':
 
     # Get service config
     if args.service_json_path:
+        args.rollout_id = ''
         assert_file_exists(args.service_json_path)
         args.service_configs = {args.service_json_path: 100}
     else:
