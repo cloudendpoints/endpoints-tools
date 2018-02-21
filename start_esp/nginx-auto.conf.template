@@ -140,8 +140,8 @@ http {
       proxy_send_timeout 86400s;
       proxy_read_timeout 86400s;
 % endif
-% endfor
     }
+% endfor
 
     include /var/lib/nginx/extra/*.conf;
   }
