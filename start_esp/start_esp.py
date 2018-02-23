@@ -85,6 +85,9 @@ DEFAULT_XFF_TRUSTED_PROXY_LIST = "0.0.0.0/0, 0::/0"
 # Default PID file location (for nginx as a daemon)
 DEFAULT_PID_FILE = "/var/run/nginx.pid"
 
+# Default nginx worker_processes
+DEFAULT_WORKER_PROCESSES = "1"
+
 # Google default application credentials environment variable
 GOOGLE_CREDS_KEY = "GOOGLE_APPLICATION_CREDENTIALS"
 
@@ -127,7 +130,8 @@ def write_template(ingress, nginx_conf, args):
             underscores_in_headers=args.underscores_in_headers,
             allow_invalid_headers=args.allow_invalid_headers,
             enable_websocket=args.enable_websocket,
-            client_max_body_size=args.client_max_body_size)
+            client_max_body_size=args.client_max_body_size,
+            worker_processes=args.worker_processes)
 
     # Save nginx conf
     try:
@@ -517,6 +521,15 @@ config file.'''.format(
     ex.
     --rewrite "/apis/shelves\\\\?id=(.*)&key=(.*) /shelves/\$1?key=\$2"
     --rewrite "^/api/v1/view/(.*) /view/\$1"
+    ''')
+
+    parser.add_argument('--worker-processes', default=DEFAULT_WORKER_PROCESSES,
+    help='''Value for nginx "worker_processes". Each worker is a single process
+    with no additional threads, so scale this if you will receive more load
+    than a single CPU can handle. Use `auto` to automatically set to the number
+    of CPUs available, but be aware that containers may be limited to less than
+    that of their host. Also, the ESP cache to Service Control is per-worker,
+    so keep this value as low as possible.
     ''')
 
     # Specify a custom service.json path.
