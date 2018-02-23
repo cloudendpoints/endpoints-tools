@@ -523,7 +523,7 @@ config file.'''.format(
     --rewrite "^/api/v1/view/(.*) /view/\$1"
     ''')
 
-    parser.add_argument('--worker-processes', default=DEFAULT_WORKER_PROCESSES,
+    parser.add_argument('--worker_processes', default=DEFAULT_WORKER_PROCESSES,
     help='''Value for nginx "worker_processes". Each worker is a single process
     with no additional threads, so scale this if you will receive more load
     than a single CPU can handle. Use `auto` to automatically set to the number
