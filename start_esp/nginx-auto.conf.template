@@ -20,7 +20,7 @@ user nginx nginx;
 pid ${pid_file};
 
 # Worker/connection processing limits
-worker_processes 1;
+worker_processes ${worker_processes};
 worker_rlimit_nofile 10240;
 events { worker_connections 10240; }
 
