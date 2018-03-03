@@ -152,6 +152,8 @@ def write_server_config_templage(server_config, args):
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy,
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
+             client_real_ip_header=args.client_real_ip_header,
+             client_real_ip_position=args.client_real_ip_position,
              rewrite_rules=args.rewrite)
 
     # Save nginx conf
@@ -568,6 +570,17 @@ config file.'''.format(
     parser.add_argument('--transcoding_always_print_primitive_fields',
         action='store_true',
         help=argparse.SUPPRESS)
+
+    parser.add_argument('--client_real_ip_header', default=None, help='''
+    Defines the request header field whose value will be used to be used as
+    the real client address.
+    {template}.''')
+
+    parser.add_argument('--client_real_ip_position', default=None, help='''
+    Defines the position of the client IP address. If the value is not defined
+    or set to 0, then client_real_ip_header will be ignored.
+    Positive number(>=1) will take the IP address from left to right and
+    negative number (<= -1)will be take it from the right to left''')
 
     return parser
 

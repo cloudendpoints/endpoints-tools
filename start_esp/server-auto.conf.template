@@ -34,6 +34,12 @@ experimental {
 % if always_print_primitive_fields:
   always_print_primitive_fields: true
 % endif
+% if client_real_ip_header:
+  client_real_ip_header: ${client_real_ip_header}
+% endif
+% if client_real_ip_position:
+  client_real_ip_position: ${client_real_ip_position}
+% endif
 }
 % if rewrite_rules:
 api_service_config {
