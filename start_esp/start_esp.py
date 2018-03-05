@@ -576,14 +576,9 @@ config file.'''.format(
     the real client address.
     {template}.''')
 
-    parser.add_argument('--client_ip_position', default=None, help='''
-    Defines the position of the client IP address.
-    If the value is >= 0, it will take the IP address from left to right
-    starting from 0. And if the value is negative number (<0) then it will take
-    the IP address from right to left starting from -1.
-    ex.  X-Forwarded-For: 1.1.1.1, 2.2.2.2, 3.3.3.3.3
-                          0        1        2
-                         -3       -2       -1''')
+    parser.add_argument('--client_ip_position', default=0, help='''
+    Defines the position of the client IP address. The default value is 0.
+    Same as the array index in many languages, such as Python.''')
     return parser
 
 
