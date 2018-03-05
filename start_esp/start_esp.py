@@ -152,8 +152,8 @@ def write_server_config_templage(server_config, args):
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy,
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
-             client_real_ip_header=args.client_real_ip_header,
-             client_real_ip_position=args.client_real_ip_position,
+             client_ip_header=args.client_ip_header,
+             client_ip_position=args.client_ip_position,
              rewrite_rules=args.rewrite)
 
     # Save nginx conf
@@ -571,12 +571,12 @@ config file.'''.format(
         action='store_true',
         help=argparse.SUPPRESS)
 
-    parser.add_argument('--client_real_ip_header', default=None, help='''
+    parser.add_argument('--client_ip_header', default=None, help='''
     Defines the request header field whose value will be used to be used as
     the real client address.
     {template}.''')
 
-    parser.add_argument('--client_real_ip_position', default=None, help='''
+    parser.add_argument('--client_ip_position', default=None, help='''
     Defines the position of the client IP address.
     If the value is >= 0, it will take the IP address from left to right
     starting from 0. And if the value is negative number (<0) then it will take
