@@ -572,9 +572,7 @@ config file.'''.format(
         help=argparse.SUPPRESS)
 
     parser.add_argument('--client_ip_header', default=None, help='''
-    Defines the request header field whose value will be used to be used as
-    the real client address.
-    {template}.''')
+    Defines HTTP header name where client IP will be extracted.''')
 
     parser.add_argument('--client_ip_position', default=0, help='''
     Defines the position of the client IP address. The default value is 0.
