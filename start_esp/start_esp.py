@@ -577,11 +577,13 @@ config file.'''.format(
     {template}.''')
 
     parser.add_argument('--client_real_ip_position', default=None, help='''
-    Defines the position of the client IP address. If the value is not defined
-    or set to 0, then client_real_ip_header will be ignored.
-    Positive number(>=1) will take the IP address from left to right and
-    negative number (<= -1)will be take it from the right to left''')
-
+    Defines the position of the client IP address.
+    If the value is >= 0, it will take the IP address from left to right
+    starting from 0. And if the value is negative number (<0) then it will take
+    the IP address from right to left starting from -1.
+    ex.  X-Forwarded-For: 1.1.1.1, 2.2.2.2, 3.3.3.3.3
+                          0        1        2
+                         -3       -2       -1''')
     return parser
 
 
