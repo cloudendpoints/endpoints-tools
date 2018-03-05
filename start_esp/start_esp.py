@@ -156,6 +156,8 @@ def write_server_config_templage(server_config, args):
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy,
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
+             client_ip_header=args.client_ip_header,
+             client_ip_position=args.client_ip_position,
              rewrite_rules=args.rewrite)
 
     # Save nginx conf
@@ -590,6 +592,14 @@ config file.'''.format(
         action='store_true',
         help=argparse.SUPPRESS)
 
+    parser.add_argument('--client_ip_header', default=None, help='''
+    Defines the HTTP header name to extract client IP address.''')
+
+    parser.add_argument('--client_ip_position', default=0, help='''
+    Defines the position of the client IP address. The default value is 0.
+    The index usage is the same as the array index in many languages,
+    such as Python. This flag is only applied when --client_ip_header is
+    specified.''')
     return parser
 
 
