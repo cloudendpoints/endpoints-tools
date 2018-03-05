@@ -572,11 +572,13 @@ config file.'''.format(
         help=argparse.SUPPRESS)
 
     parser.add_argument('--client_ip_header', default=None, help='''
-    Defines HTTP header name where client IP will be extracted.''')
+    Defines the HTTP header name to extract client IP address.''')
 
     parser.add_argument('--client_ip_position', default=0, help='''
     Defines the position of the client IP address. The default value is 0.
-    Same as the array index in many languages, such as Python.''')
+    The index usage is the same as the array index in many languages,
+    such as Python. This flag is only applied when --client_ip_header is
+    specified.''')
     return parser
 
 
