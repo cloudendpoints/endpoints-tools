@@ -85,6 +85,9 @@ DEFAULT_XFF_TRUSTED_PROXY_LIST = "0.0.0.0/0, 0::/0"
 # Default PID file location (for nginx as a daemon)
 DEFAULT_PID_FILE = "/var/run/nginx.pid"
 
+# Default nginx worker_processes
+DEFAULT_WORKER_PROCESSES = "1"
+
 # Google default application credentials environment variable
 GOOGLE_CREDS_KEY = "GOOGLE_APPLICATION_CREDENTIALS"
 
@@ -128,6 +131,7 @@ def write_template(ingress, nginx_conf, args):
             allow_invalid_headers=args.allow_invalid_headers,
             enable_websocket=args.enable_websocket,
             client_max_body_size=args.client_max_body_size,
+            worker_processes=args.worker_processes,
             cors_preset=args.cors_preset,
             cors_allow_origin=args.cors_allow_origin,
             cors_allow_methods=args.cors_allow_methods,
@@ -157,6 +161,8 @@ def write_server_config_templage(server_config, args):
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy,
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
+             client_ip_header=args.client_ip_header,
+             client_ip_position=args.client_ip_position,
              rewrite_rules=args.rewrite)
 
     # Save nginx conf
@@ -524,6 +530,15 @@ config file.'''.format(
     --rewrite "^/api/v1/view/(.*) /view/\$1"
     ''')
 
+    parser.add_argument('--worker_processes', default=DEFAULT_WORKER_PROCESSES,
+    help='''Value for nginx "worker_processes". Each worker is a single process
+    with no additional threads, so scale this if you will receive more load
+    than a single CPU can handle. Use `auto` to automatically set to the number
+    of CPUs available, but be aware that containers may be limited to less than
+    that of their host. Also, the ESP cache to Service Control is per-worker,
+    so keep this value as low as possible.
+    ''')
+
     # Specify a custom service.json path.
     # If this is specified, service json will not be fetched.
     parser.add_argument('--service_json_path',
@@ -581,6 +596,15 @@ config file.'''.format(
     parser.add_argument('--transcoding_always_print_primitive_fields',
         action='store_true',
         help=argparse.SUPPRESS)
+
+    parser.add_argument('--client_ip_header', default=None, help='''
+    Defines the HTTP header name to extract client IP address.''')
+
+    parser.add_argument('--client_ip_position', default=0, help='''
+    Defines the position of the client IP address. The default value is 0.
+    The index usage is the same as the array index in many languages,
+    such as Python. This flag is only applied when --client_ip_header is
+    specified.''')
 
     # CORS presets
     parser.add_argument('--cors_preset',
