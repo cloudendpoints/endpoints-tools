@@ -31,7 +31,7 @@ http {
   include /etc/nginx/mime.types;
   server_tokens off;
   client_max_body_size ${client_max_body_size};
-  client_body_buffer_size 128k;
+  client_body_buffer_size ${client_body_buffer_size};
 
   # HTTP subrequests
   endpoints_resolver ${resolver};
