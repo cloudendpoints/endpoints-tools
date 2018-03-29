@@ -112,25 +112,25 @@ http {
       proxy_set_header Connection $connection_upgrade;
 % endif
 
-% if location.proto == 'grpc':
-  % if cors_preset == 'basic':
-      # Begin basic CORS preset for GRPC backend
-      if (${'$'}request_method = 'OPTIONS') {
-        add_header 'Access-Control-Max-Age' 1728000;
-        add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}';
-        add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
-        add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
-        add_header 'Content-Type' 'text/plain; charset=utf-8';
-        add_header 'Content-Length' 0;
-        return 204;
-      }
+% if cors_preset == 'basic':
+    # Begin basic CORS preset
+    if (${'$'}request_method = 'OPTIONS') {
+      add_header 'Access-Control-Max-Age' 1728000;
       add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}';
       add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
       add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
-      add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}';
-      # End basic CORS preset for GRPC backend
-  % endif
+      add_header 'Content-Type' 'text/plain; charset=utf-8';
+      add_header 'Content-Length' 0;
+      return 204;
+    }
+    add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}' always;
+    add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}' always;
+    add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}' always;
+    add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}' always;
+    # End basic CORS preset
+% endif
 
+% if location.proto == 'grpc':
       # WARNING: only first backend is used
       grpc_pass ${location.backends[0]} override;
 % else:

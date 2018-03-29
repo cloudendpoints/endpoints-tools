@@ -610,8 +610,8 @@ config file.'''.format(
     parser.add_argument('--cors_preset',
         default=None,
         help='''
-        Intended for enabling CORS with a GRPC backend, since a GRPC
-        backend cannot set CORS headers.
+        Enables setting of CORS headers. This is useful when using a GRPC
+        backend, since a GRPC backend cannot set CORS headers.
         Specify one of available presets to configure CORS response headers
         in nginx. Defaults to no preset and therefore no CORS response
         headers. If no preset is suitable for the use case, use the
