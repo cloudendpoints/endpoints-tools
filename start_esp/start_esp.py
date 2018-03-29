@@ -131,6 +131,7 @@ def write_template(ingress, nginx_conf, args):
             allow_invalid_headers=args.allow_invalid_headers,
             enable_websocket=args.enable_websocket,
             client_max_body_size=args.client_max_body_size,
+            client_body_buffer_size=args.client_body_buffer_size,
             worker_processes=args.worker_processes,
             cors_preset=args.cors_preset,
             cors_allow_origin=args.cors_allow_origin,
@@ -514,6 +515,11 @@ config file.'''.format(
     is returned to the client. Please be aware that browsers cannot correctly
     display this error. Setting size to 0 disables checking of client request
     body size.''')
+
+    parser.add_argument('--client_body_buffer_size', default='128k', help='''
+    Sets buffer size for reading client request body. In case the request
+    body is larger than the buffer, the whole body or only its part is
+    written to a temporary file.''')
 
     parser.add_argument('--rewrite', action='append', help=
     '''Internally redirect the request uri with a pair of pattern and
