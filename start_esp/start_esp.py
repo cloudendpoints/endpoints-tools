@@ -132,7 +132,12 @@ def write_template(ingress, nginx_conf, args):
             enable_websocket=args.enable_websocket,
             client_max_body_size=args.client_max_body_size,
             client_body_buffer_size=args.client_body_buffer_size,
-            worker_processes=args.worker_processes)
+            worker_processes=args.worker_processes,
+            cors_preset=args.cors_preset,
+            cors_allow_origin=args.cors_allow_origin,
+            cors_allow_methods=args.cors_allow_methods,
+            cors_allow_headers=args.cors_allow_headers,
+            cors_expose_headers=args.cors_expose_headers)
 
     # Save nginx conf
     try:
@@ -606,6 +611,53 @@ config file.'''.format(
     The index usage is the same as the array index in many languages,
     such as Python. This flag is only applied when --client_ip_header is
     specified.''')
+
+    # CORS presets
+    parser.add_argument('--cors_preset',
+        default=None,
+        help='''
+        Enables setting of CORS headers. This is useful when using a GRPC
+        backend, since a GRPC backend cannot set CORS headers.
+        Specify one of available presets to configure CORS response headers
+        in nginx. Defaults to no preset and therefore no CORS response
+        headers. If no preset is suitable for the use case, use the
+        --nginx_config arg to use a custom nginx config file.
+        Available presets:
+        - basic - Assumes all location paths have the same CORS policy.
+          Responds to preflight OPTIONS requests with an empty 204, and the
+          results of preflight are allowed to be cached for up to 20 days
+          (1728000 seconds). See descriptions for args --cors_allow_origin,
+          --cors_allow_methods, --cors_allow_headers, --cors_expose_headers
+          for more granular configurations.
+        ''')
+    parser.add_argument('--cors_allow_origin',
+        default='*',
+        help='''
+        Only works when --cors_preset is in use. Configures the CORS header
+        Access-Control-Allow-Origin. Defaults to "*" which allows all
+        origins.
+        ''')
+    parser.add_argument('--cors_allow_methods',
+        default='GET, POST, PUT, PATCH, DELETE, OPTIONS',
+        help='''
+        Only works when --cors_preset is in use. Configures the CORS header
+        Access-Control-Allow-Methods. Defaults to allow common HTTP
+        methods.
+        ''')
+    parser.add_argument('--cors_allow_headers',
+        default='DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Rang,Authorization',
+        help='''
+        Only works when --cors_preset is in use. Configures the CORS header
+        Access-Control-Allow-Headers. Defaults to allow common HTTP
+        headers.
+        ''')
+    parser.add_argument('--cors_expose_headers',
+        default='Content-Length,Content-Range',
+        help='''
+        Only works when --cors_preset is in use. Configures the CORS header
+        Access-Control-Expose-Headers. Defaults to allow common response headers.
+        ''')
+
     return parser
 
 
