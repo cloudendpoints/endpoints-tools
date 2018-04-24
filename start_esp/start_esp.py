@@ -645,7 +645,7 @@ config file.'''.format(
         methods.
         ''')
     parser.add_argument('--cors_allow_headers',
-        default='DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Rang,Authorization',
+        default='DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization',
         help='''
         Only works when --cors_preset is in use. Configures the CORS header
         Access-Control-Allow-Headers. Defaults to allow common HTTP
