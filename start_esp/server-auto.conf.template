@@ -48,4 +48,10 @@ api_service_config {
 % endfor
 }
 % endif
+% if location:
+metadata_server_config {
+  location: "${location}"
+}
+% endif
+
 rollout_strategy: "${rollout_strategy}"

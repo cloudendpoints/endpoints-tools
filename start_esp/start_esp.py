@@ -137,7 +137,8 @@ def write_template(ingress, nginx_conf, args):
             cors_allow_origin=args.cors_allow_origin,
             cors_allow_methods=args.cors_allow_methods,
             cors_allow_headers=args.cors_allow_headers,
-            cors_expose_headers=args.cors_expose_headers)
+            cors_expose_headers=args.cors_expose_headers,
+            google_cloud_platform=(args.non_gcp==False))
 
     # Save nginx conf
     try:
@@ -164,7 +165,8 @@ def write_server_config_templage(server_config, args):
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
              client_ip_header=args.client_ip_header,
              client_ip_position=args.client_ip_position,
-             rewrite_rules=args.rewrite)
+             rewrite_rules=args.rewrite,
+             location=args.location)
 
     # Save nginx conf
     try:
@@ -657,6 +659,15 @@ config file.'''.format(
         Only works when --cors_preset is in use. Configures the CORS header
         Access-Control-Expose-Headers. Defaults to allow common response headers.
         ''')
+    parser.add_argument('--location',
+        help='''
+        One of acceptable zones, could not be any strings. Need to talk to
+        Chemist team to find out the acceptable zones.
+        If specified, send to ESP for location field and it will NOT be
+        overridden by Metadata server
+        ''')
+    parser.add_argument('--non_gcp', action='store_true',
+        help='''Set the environment is non google cloud platform.''')
 
     return parser
 

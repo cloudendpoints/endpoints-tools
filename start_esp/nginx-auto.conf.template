@@ -101,7 +101,8 @@ http {
         server_config /etc/nginx/server_config.pb.txt;
 % if service_account:
         google_authentication_secret ${service_account};
-% else:
+% endif
+% if google_cloud_platform:
         metadata_server ${metadata};
 % endif
       }
