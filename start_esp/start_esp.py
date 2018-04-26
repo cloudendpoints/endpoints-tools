@@ -165,8 +165,7 @@ def write_server_config_templage(server_config, args):
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
              client_ip_header=args.client_ip_header,
              client_ip_position=args.client_ip_position,
-             rewrite_rules=args.rewrite,
-             location=args.location)
+             rewrite_rules=args.rewrite)
 
     # Save nginx conf
     try:
@@ -664,15 +663,12 @@ config file.'''.format(
         Only works when --cors_preset is in use. Configures the CORS header
         Access-Control-Expose-Headers. Defaults to allow common response headers.
         ''')
-    parser.add_argument('--location',
-        help='''
-        One of acceptable zones, could not be any strings. Need to talk to
-        Chemist team to find out the acceptable zones.
-        If specified, send to ESP for location field and it will NOT be
-        overridden by Metadata server
-        ''')
     parser.add_argument('--non_gcp', action='store_true',
-        help='''Set the environment is non google cloud platform.''')
+        help='''
+        By default, ESP tries to talk to GCP metadata server to get VM
+        location in the first few requests. setting this flag to true to skip
+        this step.
+        ''')
 
     return parser
 
