@@ -256,6 +256,11 @@ def fetch_service_config(args):
     args.rollout_id = ""
 
     try:
+        # Check service_account_key and non_gcp
+        if args.non_gcp and args.service_account_key is None:
+            logging.error("If --non_gcp is specified, --service_account_key has to be specified");
+            sys.exit(3)
+
         # Get the access token
         if args.service_account_key is None:
             logging.info("Fetching an access token from the metadata service")
