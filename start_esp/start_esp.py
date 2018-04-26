@@ -137,7 +137,8 @@ def write_template(ingress, nginx_conf, args):
             cors_allow_origin=args.cors_allow_origin,
             cors_allow_methods=args.cors_allow_methods,
             cors_allow_headers=args.cors_allow_headers,
-            cors_expose_headers=args.cors_expose_headers)
+            cors_expose_headers=args.cors_expose_headers,
+            google_cloud_platform=(args.non_gcp==False))
 
     # Save nginx conf
     try:
@@ -254,6 +255,11 @@ def fetch_service_config(args):
     args.rollout_id = ""
 
     try:
+        # Check service_account_key and non_gcp
+        if args.non_gcp and args.service_account_key is None:
+            logging.error("If --non_gcp is specified, --service_account_key has to be specified");
+            sys.exit(3)
+
         # Get the access token
         if args.service_account_key is None:
             logging.info("Fetching an access token from the metadata service")
@@ -656,6 +662,12 @@ config file.'''.format(
         help='''
         Only works when --cors_preset is in use. Configures the CORS header
         Access-Control-Expose-Headers. Defaults to allow common response headers.
+        ''')
+    parser.add_argument('--non_gcp', action='store_true',
+        help='''
+        By default, ESP tries to talk to GCP metadata server to get VM
+        location in the first few requests. setting this flag to true to skip
+        this step.
         ''')
 
     return parser
