@@ -165,7 +165,8 @@ def write_server_config_templage(server_config, args):
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
              client_ip_header=args.client_ip_header,
              client_ip_position=args.client_ip_position,
-             rewrite_rules=args.rewrite)
+             rewrite_rules=args.rewrite,
+             disable_trace_sampling=args.disable_trace_sampling)
 
     # Save nginx conf
     try:
@@ -668,6 +669,10 @@ config file.'''.format(
         By default, ESP tries to talk to GCP metadata server to get VM
         location in the first few requests. setting this flag to true to skip
         this step.
+        ''')
+    parser.add_argument('--disable_trace_sampling', action='store_true',
+        help='''
+        Disable trace sampling.
         ''')
 
     return parser
