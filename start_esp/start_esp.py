@@ -672,7 +672,11 @@ config file.'''.format(
         ''')
     parser.add_argument('--disable_cloud_trace_auto_sampling', action='store_true',
         help='''
-        Disable cloud trace auto sampling.
+        Disable cloud trace auto sampling. By default, 1 request out of every
+        1000 or 1 request out of every 10 seconds is enabled with cloud trace.
+        Set this flag to false to disable such auto sampling. Cloud trace can
+        still be enabled from request HTTP headers with trace context regardless
+        this flag value.
         ''')
 
     return parser
