@@ -166,7 +166,7 @@ def write_server_config_templage(server_config, args):
              client_ip_header=args.client_ip_header,
              client_ip_position=args.client_ip_position,
              rewrite_rules=args.rewrite,
-             disable_cloud_trace_sampling=args.disable_cloud_trace_sampling)
+             disable_cloud_trace_auto_sampling=args.disable_cloud_trace_auto_sampling)
 
     # Save nginx conf
     try:
@@ -670,9 +670,9 @@ config file.'''.format(
         location in the first few requests. setting this flag to true to skip
         this step.
         ''')
-    parser.add_argument('--disable_cloud_trace_sampling', action='store_true',
+    parser.add_argument('--disable_cloud_trace_auto_sampling', action='store_true',
         help='''
-        Disable cloud trace sampling.
+        Disable cloud trace auto sampling.
         ''')
 
     return parser

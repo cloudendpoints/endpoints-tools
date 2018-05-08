@@ -41,7 +41,7 @@ experimental {
   always_print_primitive_fields: true
 % endif
 }
-% if disable_cloud_trace_sampling:
+% if disable_cloud_trace_auto_sampling:
 cloud_tracing_config {
   samling_config {
     minimum_qps: 0
