@@ -120,6 +120,9 @@ http {
       add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}';
       add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
       add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
+      % if cors_allow_credentials and cors_allow_origin != '*':
+        add_header 'Access-Control-Allow-Credentials' 'true';
+      % endif
       add_header 'Content-Type' 'text/plain; charset=utf-8';
       add_header 'Content-Length' 0;
       return 204;
@@ -128,6 +131,9 @@ http {
     add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}' always;
     add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}' always;
     add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}' always;
+    % if cors_allow_credentials and cors_allow_origin != '*':
+      add_header 'Access-Control-Allow-Credentials' 'true' always;
+    % endif
     # End basic CORS preset
 % endif
 
@@ -186,4 +192,3 @@ http {
     }
   }
 }
-
