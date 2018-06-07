@@ -115,25 +115,48 @@ http {
 
 % if cors_preset == 'basic':
     # Begin basic CORS preset
-    if (${'$'}request_method = 'OPTIONS') {
-      add_header 'Access-Control-Max-Age' 1728000;
-      add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}';
-      add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
-      add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
+  % if cors_allow_origin_regex != '':
+    if ($http_origin ~* (${cors_allow_origin_regex})) {
+        set $cors "true";
+    }
+  % else:
+    set $cors "true";
+  % endif
+
+    if ($request_method = 'OPTIONS') {
+        set $cors "${'$'}{cors}options";
+    }
+
+    if ($cors = "trueoptions") {
+        add_header 'Access-Control-Max-Age' 1728000;
+      % if cors_allow_origin_regex != '':
+        add_header 'Access-Control-Allow-Origin' "$http_origin";
+      % else:
+        add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}';
+      % endif
+        add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
+        add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
       % if cors_allow_credentials and cors_allow_origin != '*':
         add_header 'Access-Control-Allow-Credentials' 'true';
       % endif
-      add_header 'Content-Type' 'text/plain; charset=utf-8';
-      add_header 'Content-Length' 0;
-      return 204;
+        add_header 'Content-Type' 'text/plain; charset=utf-8';
+        add_header 'Content-Length' 0;
+        return 204;
     }
-    add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}' always;
-    add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}' always;
-    add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}' always;
-    add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}' always;
-    % if cors_allow_credentials and cors_allow_origin != '*':
-      add_header 'Access-Control-Allow-Credentials' 'true' always;
-    % endif
+
+    if ($cors = "true") {
+      % if cors_allow_origin_regex != '':
+        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
+      % else:
+        add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}' always;
+      % endif
+        add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}' always;
+        add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}' always;
+        add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}' always;
+      % if cors_allow_credentials and cors_allow_origin != '*':
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+      % endif
+    }
     # End basic CORS preset
 % endif
 

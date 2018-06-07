@@ -135,6 +135,7 @@ def write_template(ingress, nginx_conf, args):
             worker_processes=args.worker_processes,
             cors_preset=args.cors_preset,
             cors_allow_origin=args.cors_allow_origin,
+            cors_allow_origin_regex=args.cors_allow_origin_regex,
             cors_allow_methods=args.cors_allow_methods,
             cors_allow_headers=args.cors_allow_headers,
             cors_allow_credentials=args.cors_allow_credentials,
@@ -635,15 +636,24 @@ config file.'''.format(
           Responds to preflight OPTIONS requests with an empty 204, and the
           results of preflight are allowed to be cached for up to 20 days
           (1728000 seconds). See descriptions for args --cors_allow_origin,
-          --cors_allow_methods, --cors_allow_headers, --cors_expose_headers,
-          --cors_allow_credentials for more granular configurations.
+          --cors_allow_origin_regex, --cors_allow_methods,
+          --cors_allow_headers, --cors_expose_headers, --cors_allow_credentials
+          for more granular configurations.
         ''')
     parser.add_argument('--cors_allow_origin',
         default='*',
         help='''
         Only works when --cors_preset is in use. Configures the CORS header
         Access-Control-Allow-Origin. Defaults to "*" which allows all
-        origins.
+        origins. If --cors_allow_origin_regex is set, then this option is
+        ignored.
+        ''')
+    parser.add_argument('--cors_allow_origin_regex',
+        default='',
+        help='''
+        Only works when --cors_preset is in use. Configures the whitelists of
+        CORS header Access-Control-Allow-Origin with regular expression. If you
+        specify this option, then --cors_allow_origin option is ignored.
         ''')
     parser.add_argument('--cors_allow_methods',
         default='GET, POST, PUT, PATCH, DELETE, OPTIONS',
