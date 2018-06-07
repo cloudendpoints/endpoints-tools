@@ -149,7 +149,7 @@ def write_template(ingress, nginx_conf, args):
         logging.error("Failed to save NGINX config." + err.strerror)
         sys.exit(3)
 
-def write_server_config_templage(server_config, args):
+def write_server_config_template(server_config, args):
     # Load template
     try:
         template = Template(filename=args.server_config_template)
@@ -709,7 +709,7 @@ if __name__ == '__main__':
         fetch_service_config(args)
 
     # Generate server_config
-    write_server_config_templage(SERVER_CONF, args)
+    write_server_config_template(SERVER_CONF, args)
 
     # Generate nginx config if not specified
     nginx_conf = args.nginx_config
