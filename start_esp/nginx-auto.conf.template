@@ -118,9 +118,11 @@ http {
   % if cors_allow_origin_regex != '':
     if ($http_origin ~* (${cors_allow_origin_regex})) {
         set $cors "true";
+        set $allow_origin $http_origin;
     }
   % else:
     set $cors "true";
+    set $allow_origin "${cors_allow_origin}";
   % endif
 
     if ($request_method = 'OPTIONS') {
@@ -129,11 +131,7 @@ http {
 
     if ($cors = "trueoptions") {
         add_header 'Access-Control-Max-Age' 1728000;
-      % if cors_allow_origin_regex != '':
-        add_header 'Access-Control-Allow-Origin' "$http_origin";
-      % else:
-        add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}';
-      % endif
+        add_header 'Access-Control-Allow-Origin' "$allow_origin";
         add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
         add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
       % if cors_allow_credentials and cors_allow_origin != '*':
@@ -145,11 +143,7 @@ http {
     }
 
     if ($cors = "true") {
-      % if cors_allow_origin_regex != '':
-        add_header 'Access-Control-Allow-Origin' "$http_origin" always;
-      % else:
-        add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}' always;
-      % endif
+        add_header 'Access-Control-Allow-Origin' "$allow_origin";
         add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}' always;
         add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}' always;
         add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}' always;
