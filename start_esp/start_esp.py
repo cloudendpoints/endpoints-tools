@@ -636,6 +636,10 @@ config file.'''.format(
           Responds to preflight OPTIONS requests with an empty 204, and the
           results of preflight are allowed to be cached for up to 20 days
           (1728000 seconds). See descriptions for args --cors_allow_origin,
+          --cors_allow_methods, --cors_allow_headers, --cors_expose_headers,
+          --cors_allow_credentials for more granular configurations.
+        - cors_with_regex - Same as basic preset, except that specifying
+          allowed origins in regular expression. See descriptions for args
           --cors_allow_origin_regex, --cors_allow_methods,
           --cors_allow_headers, --cors_expose_headers, --cors_allow_credentials
           for more granular configurations.
@@ -643,17 +647,15 @@ config file.'''.format(
     parser.add_argument('--cors_allow_origin',
         default='*',
         help='''
-        Only works when --cors_preset is in use. Configures the CORS header
-        Access-Control-Allow-Origin. Defaults to "*" which allows all
-        origins. If --cors_allow_origin_regex is set, then this option is
-        ignored.
+        Only works when --cors_preset is 'basic'. Configures the CORS header
+        Access-Control-Allow-Origin. Defaults to "*" which allows all origins.
         ''')
     parser.add_argument('--cors_allow_origin_regex',
         default='',
         help='''
-        Only works when --cors_preset is in use. Configures the whitelists of
-        CORS header Access-Control-Allow-Origin with regular expression. If you
-        specify this option, then --cors_allow_origin option is ignored.
+        Only works when --cors_preset is 'cors_with_regex'. Configures the
+        whitelists of CORS header Access-Control-Allow-Origin with regular
+        expression.
         ''')
     parser.add_argument('--cors_allow_methods',
         default='GET, POST, PUT, PATCH, DELETE, OPTIONS',
@@ -671,9 +673,8 @@ config file.'''.format(
         ''')
     parser.add_argument('--cors_allow_credentials', action='store_true',
         help='''
-        Only works when --cors_preset is in use and --cors_allow_origin is not
-        "*". Enable the CORS header Access-Control-Allow-Credentials. By
-        default, this header is disabled.
+        Only works when --cors_preset is in use. Enable the CORS header
+        Access-Control-Allow-Credentials. By default, this header is disabled.
         ''')
     parser.add_argument('--cors_expose_headers',
         default='Content-Length,Content-Range',
