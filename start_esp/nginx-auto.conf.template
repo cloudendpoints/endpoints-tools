@@ -113,22 +113,45 @@ http {
       proxy_set_header Connection $connection_upgrade;
 % endif
 
-% if cors_preset == 'basic':
-    # Begin basic CORS preset
-    if (${'$'}request_method = 'OPTIONS') {
-      add_header 'Access-Control-Max-Age' 1728000;
-      add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}';
-      add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
-      add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
-      add_header 'Content-Type' 'text/plain; charset=utf-8';
-      add_header 'Content-Length' 0;
-      return 204;
+% if cors_preset:
+    # Begin CORS settings
+  % if cors_preset == 'basic':
+    set $cors "true";
+    set $allow_origin "${cors_allow_origin}";
+  % elif cors_preset == 'cors_with_regex':
+    if ($http_origin ~* (${cors_allow_origin_regex})) {
+        set $cors "true";
+        set $allow_origin $http_origin;
     }
-    add_header 'Access-Control-Allow-Origin' '${cors_allow_origin}' always;
-    add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}' always;
-    add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}' always;
-    add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}' always;
-    # End basic CORS preset
+  % endif
+
+    if ($request_method = 'OPTIONS') {
+        set $cors "${'$'}{cors}options";
+    }
+
+    if ($cors = "trueoptions") {
+        add_header 'Access-Control-Max-Age' 1728000;
+        add_header 'Access-Control-Allow-Origin' "$allow_origin";
+        add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}';
+        add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}';
+      % if cors_allow_credentials:
+        add_header 'Access-Control-Allow-Credentials' 'true';
+      % endif
+        add_header 'Content-Type' 'text/plain; charset=utf-8';
+        add_header 'Content-Length' 0;
+        return 204;
+    }
+
+    if ($cors = "true") {
+        add_header 'Access-Control-Allow-Origin' "$allow_origin";
+        add_header 'Access-Control-Allow-Methods' '${cors_allow_methods}' always;
+        add_header 'Access-Control-Allow-Headers' '${cors_allow_headers}' always;
+        add_header 'Access-Control-Expose-Headers' '${cors_expose_headers}' always;
+      % if cors_allow_credentials:
+        add_header 'Access-Control-Allow-Credentials' 'true' always;
+      % endif
+    }
+    # End CORS settings
 % endif
 
 % if location.proto == 'grpc':
@@ -186,4 +209,3 @@ http {
     }
   }
 }
-
