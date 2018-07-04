@@ -88,9 +88,6 @@ DEFAULT_PID_FILE = "/var/run/nginx.pid"
 # Default nginx worker_processes
 DEFAULT_WORKER_PROCESSES = "1"
 
-# Default SSL protocols
-DEFAULT_SSL_PROTOCOLS = "TLSv1 TLSv1.1 TLSv1.2"
-
 # Google default application credentials environment variable
 GOOGLE_CREDS_KEY = "GOOGLE_APPLICATION_CREDENTIALS"
 
@@ -701,12 +698,12 @@ config file.'''.format(
         this flag value.
         ''')
     parser.add_argument('--ssl_protocols',
-        default=DEFAULT_SSL_PROTOCOLS,
-        help='''
+        default=None, action='append', help='''
         Enable the specified SSL protocols (space separated). Please refer to
         https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_protocols.
-        Default value: {ssl_protocols}. 
-        '''.format(ssl_protocols=DEFAULT_SSL_PROTOCOLS))
+        The "ssl_protocols" argument can be repeat multiple times to specify multiple
+        SSL protocols (e.g., --ssl_protocols=TLSv1.1 --ssl_protocols=TLSv1.2).
+        ''')
 
     return parser
 
