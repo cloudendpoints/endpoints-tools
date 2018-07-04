@@ -88,6 +88,9 @@ DEFAULT_PID_FILE = "/var/run/nginx.pid"
 # Default nginx worker_processes
 DEFAULT_WORKER_PROCESSES = "1"
 
+# Default SSL protocols
+DEFAULT_SSL_PROTOCOLS = "TLSv1 TLSv1.1 TLSv1.2"
+
 # Google default application credentials environment variable
 GOOGLE_CREDS_KEY = "GOOGLE_APPLICATION_CREDENTIALS"
 
@@ -140,6 +143,7 @@ def write_template(ingress, nginx_conf, args):
             cors_allow_headers=args.cors_allow_headers,
             cors_allow_credentials=args.cors_allow_credentials,
             cors_expose_headers=args.cors_expose_headers,
+            ssl_protocols=args.ssl_protocols,
             google_cloud_platform=(args.non_gcp==False))
 
     # Save nginx conf
@@ -696,6 +700,13 @@ config file.'''.format(
         still be enabled from request HTTP headers with trace context regardless
         this flag value.
         ''')
+    parser.add_argument('--ssl_protocols',
+        default=DEFAULT_SSL_PROTOCOLS,
+        help='''
+        Enable the specified SSL protocols (space separated). Please refer to
+        https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_protocols.
+        Default value: {ssl_protocols}. 
+        '''.format(ssl_protocols=DEFAULT_SSL_PROTOCOLS))
 
     return parser
 

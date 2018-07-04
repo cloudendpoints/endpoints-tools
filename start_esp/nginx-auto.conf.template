@@ -64,6 +64,8 @@ http {
   server {
     server_name ${ingress.host};
 
+    ssl_protocols ${ssl_protocols};
+
 % for port in ingress.ports:
   % if port.proto == 'http':
     listen ${port.port} backlog=16384;
