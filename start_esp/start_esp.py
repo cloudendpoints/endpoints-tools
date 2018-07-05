@@ -701,7 +701,7 @@ config file.'''.format(
         default=None, action='append', help='''
         Enable the specified SSL protocols. Please refer to
         https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_protocols.
-        The "ssl_protocols" argument can be repeat multiple times to specify multiple
+        The "ssl_protocols" argument can be repeated multiple times to specify multiple
         SSL protocols (e.g., --ssl_protocols=TLSv1.1 --ssl_protocols=TLSv1.2).
         ''')
 
