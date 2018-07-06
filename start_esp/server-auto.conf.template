@@ -29,9 +29,9 @@ service_management_config {
   url: "${management}"
 }
 % endif
-% if service_control_override:
+% if service_control_url_override:
 service_control_config {
-  url_override: "${service_control_override}"
+  url_override: "${service_control_url_override}"
 }
 % endif
 % if client_ip_header:
