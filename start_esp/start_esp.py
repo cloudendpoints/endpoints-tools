@@ -162,6 +162,7 @@ def write_server_config_template(server_config, args):
     conf = template.render(
              service_configs=args.service_configs,
              management=args.management,
+             service_control_override=args.service_control_override,
              rollout_id=args.rollout_id,
              rollout_strategy=args.rollout_strategy,
              always_print_primitive_fields=args.transcoding_always_print_primitive_fields,
@@ -568,6 +569,11 @@ config file.'''.format(
     # Customize management service url prefix.
     parser.add_argument('-g', '--management',
         default=MANAGEMENT_ADDRESS,
+        help=argparse.SUPPRESS)
+
+    # Customize servicecontrol url prefix.
+    parser.add_argument('--service_control_override',
+        default=None,
         help=argparse.SUPPRESS)
 
     # Fetched service config and generated nginx config are placed
