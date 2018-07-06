@@ -140,6 +140,7 @@ def write_template(ingress, nginx_conf, args):
             cors_allow_headers=args.cors_allow_headers,
             cors_allow_credentials=args.cors_allow_credentials,
             cors_expose_headers=args.cors_expose_headers,
+            ssl_protocols=args.ssl_protocols,
             google_cloud_platform=(args.non_gcp==False))
 
     # Save nginx conf
@@ -702,6 +703,13 @@ config file.'''.format(
         Set this flag to false to disable such auto sampling. Cloud trace can
         still be enabled from request HTTP headers with trace context regardless
         this flag value.
+        ''')
+    parser.add_argument('--ssl_protocols',
+        default=None, action='append', help='''
+        Enable the specified SSL protocols. Please refer to
+        https://nginx.org/en/docs/http/ngx_http_ssl_module.html#ssl_protocols.
+        The "ssl_protocols" argument can be repeated multiple times to specify multiple
+        SSL protocols (e.g., --ssl_protocols=TLSv1.1 --ssl_protocols=TLSv1.2).
         ''')
 
     # Customize cloudtrace service url prefix.

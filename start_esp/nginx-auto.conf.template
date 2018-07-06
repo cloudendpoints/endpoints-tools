@@ -64,6 +64,23 @@ http {
   server {
     server_name ${ingress.host};
 
+% if ssl_protocols:
+  <%
+    ssl_protocol_list = ""
+  %>
+  % for idx, val in enumerate(ssl_protocols):
+    <%
+      ssl_protocol_list += val
+    %>
+    % if idx < len(ssl_protocols)-1:
+      <%
+        ssl_protocol_list += " "
+      %>
+    % endif
+  % endfor
+    ssl_protocols ${ssl_protocol_list};
+% endif
+
 % for port in ingress.ports:
   % if port.proto == 'http':
     listen ${port.port} backlog=16384;
