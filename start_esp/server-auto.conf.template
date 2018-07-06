@@ -46,11 +46,16 @@ experimental {
   always_print_primitive_fields: true
 % endif
 }
-% if disable_cloud_trace_auto_sampling:
+% if disable_cloud_trace_auto_sampling or cloud_trace_url_override:
 cloud_tracing_config {
+  % if cloud_trace_url_override:
+  url_override: "${cloud_trace_url_override}"
+  % endif
+  % if disable_cloud_trace_auto_sampling:
   samling_config {
     minimum_qps: 0
   }
+  % endif
 }
 % endif
 % if rewrite_rules:

@@ -169,7 +169,8 @@ def write_server_config_template(server_config, args):
              client_ip_header=args.client_ip_header,
              client_ip_position=args.client_ip_position,
              rewrite_rules=args.rewrite,
-             disable_cloud_trace_auto_sampling=args.disable_cloud_trace_auto_sampling)
+             disable_cloud_trace_auto_sampling=args.disable_cloud_trace_auto_sampling,
+             cloud_trace_url_override=args.cloud_trace_url_override)
 
     # Save nginx conf
     try:
@@ -702,6 +703,11 @@ config file.'''.format(
         still be enabled from request HTTP headers with trace context regardless
         this flag value.
         ''')
+
+    # Customize cloudtrace service url prefix.
+    parser.add_argument('--cloud_trace_url_override',
+        default=None,
+        help=argparse.SUPPRESS)
 
     return parser
 
