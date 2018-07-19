@@ -711,6 +711,17 @@ config file.'''.format(
         The "ssl_protocols" argument can be repeated multiple times to specify multiple
         SSL protocols (e.g., --ssl_protocols=TLSv1.1 --ssl_protocols=TLSv1.2).
         ''')
+    parser.add_argument('--generate_config_file_only', action='store_true',
+        help='''Only generate the nginx config file without running ESP. This option is 
+        for testing that the generated nginx config file is as expected.
+        ''')
+    parser.add_argument('--server_config_generation_path',
+        default=None, help='''
+        Define where to write the server configuration file. This option only works when
+        --generate_config_file_only is used. When --generate_config_file_only is used but
+        --server_config_generation_path is absent, the server configuration file generation
+        is skipped.
+        ''')
 
     # Customize cloudtrace service url prefix.
     parser.add_argument('--cloud_trace_url_override',
@@ -724,6 +735,11 @@ if __name__ == '__main__':
     parser = make_argparser()
     args = parser.parse_args()
     logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.INFO)
+
+    if args.generate_config_file_only:
+        if args.nginx_config:
+            logging.error("--nginx_config is not allowed when --generate_config_file_only")
+            sys.exit(3)
 
     # Set credentials file from the environment variable
     if args.service_account_key is None:
@@ -744,10 +760,18 @@ if __name__ == '__main__':
     else:
         # Fetch service config and place it in the standard location
         ensure(args.config_dir)
-        fetch_service_config(args)
+        if not args.generate_config_file_only:
+            fetch_service_config(args)
 
     # Generate server_config
-    write_server_config_template(SERVER_CONF, args)
+    if args.generate_config_file_only:
+        if args.server_config_generation_path is None:
+            logging.error("when --generate_config_file_only, must specify --server_config_generation_path")
+            sys.exit(3)
+        else:
+            write_server_config_template(args.server_config_generation_path, args)
+    else:
+        write_server_config_template(SERVER_CONF, args)
 
     # Generate nginx config if not specified
     nginx_conf = args.nginx_config
@@ -756,6 +780,9 @@ if __name__ == '__main__':
         nginx_conf = args.config_dir + "/nginx.conf"
         ensure(args.config_dir)
         write_template(ingress, nginx_conf, args)
+
+    if args.generate_config_file_only:
+        exit(0)
 
     # Generate self-signed cert if needed
     if args.generate_self_signed_cert:
