@@ -8,6 +8,7 @@ These tools are not official Google products.
 
 This repository hosts tools used by the Extensible Service Proxy:
 * [helper script for Kubernetes deployment](#esp-cli) is a Golang command line utility that automates ESP injection as a sidecar container in Kubernetes deployments and configuring the proxy. This script is used by a single-line ESP tutorial, and shows how to use the start-up script.
+* [obsoleted_start_esp](/obsoleted_start_esp): this folder is obsolete and has been moved to [the ESP repository](https://github.com/cloudendpoints/esp).
 
 ## ESP CLI ##
 
