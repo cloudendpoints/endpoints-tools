@@ -787,15 +787,3 @@ new_git_repository(
     remote = "https://github.com/GoogleCloudPlatform/google-cloud-go.git",
 )
 
-#
-# Python rules
-#
-git_repository(
-    name = "io_bazel_rules_pex",
-    commit = "d4af3ca0a015e8b2d2a81a4df1df51bb0fa0bba0",
-    remote = "https://github.com/benley/bazel_rules_pex.git",
-)
-
-load("@io_bazel_rules_pex//pex:pex_rules.bzl", "pex_repositories")
-
-pex_repositories()
