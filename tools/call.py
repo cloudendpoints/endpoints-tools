@@ -55,7 +55,7 @@ def call_report(access_token, operation_id, args):
     print "{} Check failed code: {},  error {}".format(time.ctime(), e.code, e.reason)
     return
   latency = time.time() - t0
-  if trace_id and (latency >= 1.0):
+  if trace_id and (latency >= 15.0):
     print "{}: report big latency {}, trace_id: {} operation_id: {}".format(time.ctime(), latency, trace_id, operation_id)
 
 
@@ -85,7 +85,7 @@ def call_check(access_token, operation_id, args):
     print "{} Check failed code: {},  error {}".format(time.ctime(), e.code, e.reason)
     return
   latency = time.time() - t0
-  if trace_id and (latency >= 1.0):
+  if trace_id and (latency >= 5.0):
     print "{}: check big latency {}, trace_id: {} operation_id: {}".format(time.ctime(), latency, trace_id, operation_id)
 
 if __name__ == '__main__':
